@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Dispatch Brigade Municipale</title>
+<style>
+body{
+    
+    font-family:Segoe UI, sans-serif;
+    background:#0b1220;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+}
+ 
+.container{
+    width:450px;
+    background:#111827;
+    padding:30px;
+    border-radius:15px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+h2{text-align:center;}
+input,button,select{
+    padding:12px;
+    border-radius:8px;
+    border:none;
+    font-size:14px;
+}
+button{
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+    transition:0.2s;
+}
+button:hover{background:#1e40af;}
+a{
+    color:#2563eb;
+    cursor:pointer;
+    text-decoration:underline;
+    text-align:center;
+    margin-top:10px;
+}
+#mdt{
+    display:none;
+    flex:1;
+    width:100%;
+    height:100vh;
+    flex-direction:row;
+}
+.sidebar{
+    width:260px;
+    background:#020617;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+#joinCSU {
+    margin-top: 10px; /* espace entre le texte et le bouton */
+}
+
+#leaveCSU {
+    margin-top: 10px; /* espace entre le texte et le bouton */
+}
+
+.main{
+    flex:1;
+    display:flex;
+    padding:30px;
+    gap:30px;
+    overflow-y:auto;
+}
+.card{
+    background:#111827;
+    padding:20px;
+    border-radius:15px;
+}
+.vacations{
+    flex:2;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+.waiting{
+    flex:1;
+}
+.agent{
+    background:#1f2937;
+    padding:6px;
+    border-radius:6px;
+    margin-top:5px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.csu{
+    background:#f59e0b;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:10px;
+}
+.csu-button{
+    background:#dc2626;
+    margin-left:5px;
+    padding:4px 6px;
+    border-radius:5px;
+}
+.agent.dragging{opacity:0.5;}
+</style>
+</head>
+<body>
+
+<button id="btnAdmin" 
+    style="
+        display:none; 
+        position: fixed;   /* reste toujours visible */
+        top: 15px;         /* 15px du haut */
+        right: 15px;       /* 15px de la droite */
+        z-index: 1000;     /* au-dessus des autres éléments */
+        padding: 10px 15px;
+        border-radius: 8px;
+        background: #2563eb;
+        color: white;
+        cursor: pointer;
+    ">
+⚙️ Admin
+</button>
+
+
+
+<!-- INSCRIPTION -->
+<div class="container" id="pageInscription">
+    <h2>Inscription</h2>
+    <input id="rPrenom" placeholder="Prénom">
+    <input id="rNom" placeholder="Nom">
+    <input id="rGrade" placeholder="Grade">
+    <input id="rPass" type="password" placeholder="Mot de passe">
+    <button id="btnRegister">Créer compte</button>
+    <a id="linkToLogin">Déjà un compte ? Connexion</a>
+</div>
+
+<!-- LOGIN -->
+<div class="container" id="pageLogin" style="display:none;">
+    <h2>Connexion</h2>
+    <input id="lPrenom" placeholder="Prénom">
+    <input id="lNom" placeholder="Nom">
+    <input id="lPass" type="password" placeholder="Mot de passe">
+    <button id="btnLogin">Connexion</button>
+    <a id="linkToRegister">Pas de compte ? Inscription</a>
+</div>
+
+<!-- MDT -->
+<div id="mdt">
+    <div class="sidebar">
+        <h3>Agent</h3>
+        <div id="agentInfo"></div>
+        <button id="btnAttente">🟢 Attente</button>
+        <button id="btnQuitterAttente">🔴 Quitter</button>
+        <div class="csu">
+            <h4>CSU</h4>
+            <div style="display:flex; align-items:center; gap:20px;"></div>
+            <div id="csuInfo">Aucun agent CSU</div>
+            <button id="joinCSU">Rejoindre CSU</button>
+            <button id="leaveCSU" style="display:none;">Quitter CSU</button>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="vacations" id="vacationsDiv"></div>
+        <div class="waiting card">
+            <h3>Attente d'affectation</h3>
+            <div id="waitingList"></div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- PAGE ADMIN -->
+<div class="container" id="pageAdmin" style="display:none;">
+    <h2>Admin - Validation des comptes</h2>
+    <div id="adminList" style="display:flex; flex-direction:column; gap:10px;"></div>
+    <button id="btnBackAdmin">⬅️ Retour</button>
+</div>
+
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, collection, onSnapshot, getDocs }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// CONFIG FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyDX486w4yzHXDOgJ66Q0VjMRXMGtBFNdIY",
+  authDomain: "mydispatch-3a386.firebaseapp.com",
+  projectId: "mydispatch-3a386",
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ELEMENTS
+const pageInscription=document.getElementById("pageInscription");
+const pageLogin=document.getElementById("pageLogin");
+const pageMDT=document.getElementById("mdt");
+const agentInfo=document.getElementById("agentInfo");
+const waitingList=document.getElementById("waitingList");
+const vacationsDiv=document.getElementById("vacationsDiv");
+const csuInfo=document.getElementById("csuInfo");
+const joinCSU=document.getElementById("joinCSU");
+const leaveCSU=document.getElementById("leaveCSU");
+const rPrenom=document.getElementById("rPrenom");
+const rNom=document.getElementById("rNom");
+const rGrade=document.getElementById("rGrade");
+const rPass=document.getElementById("rPass");
+const lPrenom=document.getElementById("lPrenom");
+const lNom=document.getElementById("lNom");
+const lPass=document.getElementById("lPass");
+const btnRegister=document.getElementById("btnRegister");
+const btnLogin=document.getElementById("btnLogin");
+const linkToLogin=document.getElementById("linkToLogin");
+const linkToRegister=document.getElementById("linkToRegister");
+const btnAttente=document.getElementById("btnAttente");
+const btnQuitterAttente=document.getElementById("btnQuitterAttente");
+
+const btnAdmin = document.getElementById("btnAdmin");
+const pageAdmin = document.getElementById("pageAdmin");
+const adminList = document.getElementById("adminList");
+const btnBackAdmin = document.getElementById("btnBackAdmin");
+
+let currentUser=null;
+let isCSU=false;
+
+// ADMINS AUTORISÉS
+const admins = ["Robin.Perrick"]; // à adapter
+
+// NAVIGATION
+function showPage(page){
+    pageInscription.style.display="none";
+    pageLogin.style.display="none";
+    pageMDT.style.display="none";
+    pageAdmin.style.display="none";
+    page.style.display="flex";
+}
+linkToLogin.onclick=()=>showPage(pageLogin);
+linkToRegister.onclick=()=>showPage(pageInscription);
+
+// INSCRIPTION
+btnRegister.onclick=async()=>{
+    const prenom=rPrenom.value.trim();
+    const nom=rNom.value.trim();
+    const grade=rGrade.value.trim();
+    const pass=rPass.value.trim();
+    if(!prenom||!nom||!grade||!pass) return alert("Veuillez remplir tout les champs !");
+    const id=prenom+"."+nom;
+    const docRef=doc(db,"agents",id);
+    const snap=await getDoc(docRef);
+    if(snap.exists()) return alert("Ce compte existe déjà");
+    await setDoc(docRef,{prenom,nom,grade,pass,validated:false,inWaiting:false,inVacation:null});
+    alert("Compte créé ! En attente de validation.");
+    rPrenom.value=rNom.value=rGrade.value=rPass.value="";
+    showPage(pageLogin);
+}
+
+// LOGIN
+btnLogin.onclick = async () => {
+    const prenom = lPrenom.value.trim();
+    const nom = lNom.value.trim();
+    const pass = lPass.value.trim();
+    if(!prenom || !nom || !pass) return alert("Veuillez remplir tout les champs !");
+    const id = prenom + "." + nom;
+    const docRef = doc(db,"agents",id);
+    const snap = await getDoc(docRef);
+    if(!snap.exists()) return alert("Vous n'avez pas de compte");
+    const data = snap.data();
+    if(data.pass !== pass) return alert("Une de vos informations est incorect");
+    if(!data.validated) return alert("Votre compte n'a pas encore été validé !");
+    currentUser = {...data, id};
+    agentInfo.innerText = `${currentUser.prenom} ${currentUser.nom} - ${currentUser.grade}`;
+    showPage(pageMDT);
+    checkAdmin();
+    await initDispatch();
+    await initVacations();
+    initCSU();
+    loadWaiting();
+    loadVacations();
+};
+
+// Vérifie si currentUser est admin
+function checkAdmin(){
+    btnAdmin.style.display = (currentUser && admins.includes(currentUser.id)) ? "block" : "none";
+}
+
+// Ouvrir page admin
+btnAdmin.onclick=async()=>{
+    showPage(pageAdmin);
+    loadAdminAccounts();
+}
+btnBackAdmin.onclick=()=>showPage(pageMDT);
+
+// Charger comptes non validés
+async function loadAdminAccounts(){
+    adminList.innerHTML="";
+    const snap = await getDocs(collection(db,"agents"));
+    let count = 0;
+
+    snap.forEach(docu=>{
+        const data = docu.data();
+
+        if(!data.validated){
+
+            const div = document.createElement("div");
+            div.className="agent";
+            div.style.display="flex";
+            div.style.justifyContent="space-between";
+            div.style.alignItems="center";
+            div.style.background="#1f2937";
+            div.style.padding="10px";
+            div.style.borderRadius="8px";
+
+            const span = document.createElement("span");
+            span.innerText=`${data.prenom} ${data.nom} - ${data.grade}`;
+            div.appendChild(span);
+
+            const actions = document.createElement("div");
+
+            // ✅ BOUTON VALIDER
+            const btnValider = document.createElement("button");
+            btnValider.textContent="✅ Valider";
+            btnValider.style.background="#16a34a";
+            btnValider.onclick=async()=>{
+                await updateDoc(doc(db,"agents",docu.id),{validated:true});
+                loadAdminAccounts();
+            };
+
+            // ❌ BOUTON REFUSER
+            const btnRefuser = document.createElement("button");
+            btnRefuser.textContent="❌ Refuser";
+            btnRefuser.style.background="#dc2626";
+            btnRefuser.style.marginLeft="5px";
+            btnRefuser.onclick=async()=>{
+                if(confirm("Refuser ce compte ?")){
+                    await deleteDoc(doc(db,"agents",docu.id));
+                    loadAdminAccounts();
+                }
+            };
+
+            actions.appendChild(btnValider);
+            actions.appendChild(btnRefuser);
+            div.appendChild(actions);
+
+            adminList.appendChild(div);
+            count++;
+        }
+    });
+
+    if(count===0){
+        const span = document.createElement("span");
+        span.innerText="Votre compte n'est pas en attente";
+        adminList.appendChild(span);
+    }
+}
+
+
+// INIT DISPATCH & VACATIONS
+async function initDispatch(){
+    const ref=doc(db,"dispatch","waiting");
+    const snap=await getDoc(ref);
+    if(!snap.exists()) await setDoc(ref,{agents:[]});
+}
+async function initVacations(){
+    const vacCol=collection(db,"vacations");
+    const snap=await getDocs(vacCol);
+    if(snap.empty){
+        const defaultVacations=[
+            {nom:"Victor 01",statut:"Disponible",agents:[],vehicules:["Aucun"]},
+            {nom:"Victor 02",statut:"Disponible",agents:[],vehicules:["Aucun"]},
+            {nom:"Victor 03",statut:"Disponible",agents:[],vehicules:["Aucun"]},
+            {nom:"GSI Alpha",statut:"Disponible",agents:[],vehicules:["Aucun"]},
+            {nom:"GSI Bravo",statut:"Disponible",agents:[],vehicules:["Aucun"]},
+            {nom:"BMU Alpha",statut:"Disponible",agents:[],vehicules:["Aucun"]},
+            {nom:"BMU Bravo",statut:"Disponible",agents:[],vehicules:["Aucun"]},
+        ];
+        for(let v of defaultVacations){
+            const id=v.nom.replace(/\s+/g,"_");
+            await setDoc(doc(db,"vacations",id),v);
+        }
+    }
+}
+
+// ATTENTE
+btnAttente.onclick=async()=>{
+    if(!currentUser || currentUser.inVacation) return alert("Vous êtes déjà dans une vacation !");
+    const ref=doc(db,"dispatch","waiting");
+    await updateDoc(ref,{agents:arrayUnion(currentUser)});
+    await updateDoc(doc(db,"agents",currentUser.id),{inWaiting:true});
+    currentUser.inWaiting=true;
+}
+btnQuitterAttente.onclick=async()=>{
+    if(!currentUser) return;
+    const ref=doc(db,"dispatch","waiting");
+    await updateDoc(ref,{agents:arrayRemove(currentUser)});
+    await updateDoc(doc(db,"agents",currentUser.id),{inWaiting:false});
+    currentUser.inWaiting=false;
+}
+
+// CSU
+function initCSU(){
+    const csuRef=doc(db,"csu","current");
+    onSnapshot(csuRef,snap=>{
+        const data = snap.data()||{};
+        if(data.agent){
+            csuInfo.innerText=`${data.agent.prenom} ${data.agent.nom} ${data.agent.grade}`;
+            isCSU=(currentUser.id===data.agent.id);
+            joinCSU.style.display=isCSU? "none" : "none";
+            leaveCSU.style.display=isCSU? "block" : "none";
+        } else {
+            csuInfo.innerText="Aucun agent CSU";
+            isCSU=false;
+            joinCSU.style.display="block";
+            leaveCSU.style.display="none";
+        }
+        loadVacations();
+        loadWaiting();
+    });
+}
+joinCSU.onclick=async()=>{
+    const csuRef=doc(db,"csu","current");
+    const snap=await getDoc(csuRef);
+    if(snap.data()?.agent) return alert("Un agent est déjà CSU !");
+    await setDoc(csuRef,{agent:currentUser});
+}
+leaveCSU.onclick=async()=>{
+    const csuRef=doc(db,"csu","current");
+    await setDoc(csuRef,{agent:null});
+}
+
+// LOAD
+function loadWaiting(){
+    const ref=doc(db,"dispatch","waiting");
+    onSnapshot(ref,snap=>{
+        waitingList.innerHTML="";
+        (snap.data()?.agents||[]).forEach(a=>{
+            const div = document.createElement("div");
+            div.className="agent";
+            div.innerText=`${a.prenom} ${a.nom} - ${a.grade}`;
+            if(isCSU){
+                const btn = document.createElement("button");
+                btn.textContent="❌ Retirer";
+                btn.className="csu-button";
+                btn.onclick=async()=>{
+                    await updateDoc(ref,{agents:arrayRemove(a)});
+                    await updateDoc(doc(db,"agents",a.id),{inWaiting:false});
+                }
+                div.appendChild(btn);
+            }
+            waitingList.appendChild(div);
+        });
+    });
+}
+
+function colorStatut(select){
+    if(select.value === "Disponible"){
+        select.style.backgroundColor = "#2ecc71"; // vert
+        select.style.color = "white";
+    }
+    else if(select.value === "Indisponible"){
+        select.style.backgroundColor = "#e74c3c"; // rouge
+        select.style.color = "white";
+    }
+    else if(select.value === "En intervention"){
+        select.style.backgroundColor = "#f39c12"; // orange
+        select.style.color = "white";
+    }
+}
+
+
+function loadVacations(){
+    const vacCol=collection(db,"vacations");
+    onSnapshot(vacCol,snap=>{
+        vacationsDiv.innerHTML="";
+        // Ordre voulu : Victor -> GSI -> BMU
+        const docs = snap.docs.sort((a, b) => {
+    const order = [
+        "Victor 01", "Victor 02", "Victor 03",
+        "GSI Alpha", "GSI Bravo",
+        "BMU Alpha", "BMU Bravo"
+    ];
+
+    const aData = a.data();
+    const bData = b.data();
+
+    const aHasAgents = (aData.agents || []).length > 0 ? 0 : 1;
+    const bHasAgents = (bData.agents || []).length > 0 ? 0 : 1;
+
+    // 1️⃣ Priorité aux vacations avec agents
+    if(aHasAgents !== bHasAgents) return aHasAgents - bHasAgents;
+
+    // 2️⃣ Priorité selon l'ordre fixe
+    const aIndex = order.indexOf(aData.nom);
+    const bIndex = order.indexOf(bData.nom);
+
+    if(aIndex === -1 && bIndex === -1) return 0;
+    if(aIndex === -1) return 1;
+    if(bIndex === -1) return -1;
+
+    return aIndex - bIndex;
+});
+
+
+        docs.forEach(docu=>{
+            const v = docu.data();
+            const div = document.createElement("div");
+            div.className="card";
+            const title = document.createElement("h3");
+            title.textContent=v.nom;
+            div.appendChild(title);
+            // STATUT
+            const selectStat = document.createElement("select");
+            ["Disponible","Indisponible","En intervention"].forEach(s=>{
+                const opt=document.createElement("option");
+                opt.value=s; opt.textContent=s;
+                if(v.statut===s) opt.selected=true;
+                selectStat.appendChild(opt);
+            });
+            selectStat.disabled=!(isCSU || (v.agents||[]).some(a=>a.id===currentUser.id));
+            colorStatut(selectStat);
+            selectStat.onchange=async()=>{
+            colorStatut(selectStat);
+            await updateDoc(doc(db,"vacations",docu.id),{statut:selectStat.value});
+            };
+
+            div.appendChild(selectStat);
+            // VEHICULE
+            const vehicles=["Aucun","Enyoq","Cinq C SW","Mégane","Kangoo","Tucson","Zoé"];
+            const selVeh=document.createElement("select");
+            vehicles.forEach(vh=>{
+                const opt=document.createElement("option");
+                opt.value=vh; opt.textContent=vh;
+                if((v.vehicules||["Aucun"]).includes(vh)) opt.selected=true;
+                selVeh.appendChild(opt);
+            });
+            selVeh.disabled=!(isCSU || (v.agents||[]).some(a=>a.id===currentUser.id));
+            selVeh.onchange=async()=>{ await updateDoc(doc(db,"vacations",docu.id),{vehicules:[selVeh.value]}) };
+            div.appendChild(selVeh);
+            // BOUTONS REJOINDRE / QUITTER
+            const joinBtn=document.createElement("button");
+            joinBtn.textContent="Rejoindre"; joinBtn.onclick=()=>rejoindreVacation(docu.id);
+            const leaveBtn=document.createElement("button");
+            leaveBtn.textContent="Quitter"; leaveBtn.onclick=()=>quitterVacation(docu.id);
+            div.appendChild(joinBtn); div.appendChild(leaveBtn);
+            // AGENTS
+            const agentDiv=document.createElement("div");
+            agentDiv.className="agents-container";
+            (v.agents||[]).forEach(a=>{
+                const ag=document.createElement("div");
+                ag.className="agent"; ag.innerText=`${a.prenom} ${a.nom} - ${a.grade}`;
+                ag.draggable=isCSU;
+                if(isCSU){
+                    const btn=document.createElement("button"); btn.textContent="❌ Retirer"; btn.className="csu-button";
+                    btn.onclick=async()=>{ await updateDoc(doc(db,"vacations",docu.id),{agents:arrayRemove(a)}); await updateDoc(doc(db,"agents",a.id),{inVacation:null}); };
+                    ag.appendChild(btn);
+                    ag.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",JSON.stringify({agent:a,from:docu.id})); ag.classList.add("dragging");});
+                    ag.addEventListener("dragend",()=>ag.classList.remove("dragging"));
+                }
+                agentDiv.appendChild(ag);
+            });
+            div.addEventListener("dragover",e=>e.preventDefault());
+            div.addEventListener("drop",async e=>{
+                e.preventDefault(); if(!isCSU) return;
+                const data=JSON.parse(e.dataTransfer.getData("text/plain"));
+                if(data.from===docu.id) return;
+                const agentObj=data.agent;
+                const fromRef=doc(db,"vacations",data.from);
+                const toRef=doc(db,"vacations",docu.id);
+                await updateDoc(toRef,{agents:arrayUnion(agentObj)});
+                await updateDoc(fromRef,{agents:arrayRemove(agentObj)});
+                await updateDoc(doc(db,"agents",agentObj.id),{inVacation:docu.id});
+            });
+            div.appendChild(agentDiv);
+            vacationsDiv.appendChild(div);
+        });
+    });
+}
+
+// REJOINDRE / QUITTER VACATION
+async function rejoindreVacation(id){
+    if(!currentUser) return;
+    if(currentUser.inVacation) return alert("Vous êtes déjà dans une vacation !");
+    if(currentUser.inWaiting) await btnQuitterAttente.onclick();
+    await updateDoc(doc(db,"vacations",id),{agents:arrayUnion(currentUser)});
+    await updateDoc(doc(db,"agents",currentUser.id),{inVacation:id});
+    currentUser.inVacation=id;
+}
+async function quitterVacation(id){
+    if(!currentUser) return;
+    await updateDoc(doc(db,"vacations",id),{agents:arrayRemove(currentUser)});
+    await updateDoc(doc(db,"agents",currentUser.id),{inVacation:null});
+    currentUser.inVacation=null;
+}
+</script>
+</body>
+</html>
