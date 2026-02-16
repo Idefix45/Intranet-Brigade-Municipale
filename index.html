@@ -1,0 +1,3089 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Intranet Brigade Municipale</title>
+<style>
+    
+body{
+    
+    font-family:Segoe UI, sans-serif;
+    background:#1c2b49;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+}
+ 
+.container{
+    width:450px;
+    background:#111827;
+    padding:30px;
+    border-radius:15px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+h2{text-align:center;}
+input,button,select{
+    padding:12px;
+    border-radius:8px;
+    border:none;
+    font-size:14px;
+}
+button{
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+    transition:0.2s;
+}
+button:hover{background:#1e40af;}
+a{
+    color:#2563eb;
+    cursor:pointer;
+    text-decoration:underline;
+    text-align:center;
+    margin-top:10px;
+}
+#mdt{
+    display:none;
+    flex:1;
+    width:100%;
+    height:100vh;
+    flex-direction:row;
+}
+.sidebar{
+    width:260px;
+    background:#020617;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+#joinCSU {
+    margin-top: 10px; /* espace entre le texte et le bouton */
+}
+
+#leaveCSU {
+    margin-top: 10px; /* espace entre le texte et le bouton */
+}
+
+.main{
+    flex:1;
+    display:flex;
+    padding:30px;
+    gap:30px;
+    overflow-y:auto;
+}
+
+/* Carte normale (hover effect) */
+.card {
+    background:#0a0f1a;
+    padding:20px;
+    border-radius:15px;
+    position: relative;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    transition: 
+        transform 0.35s ease,
+        box-shadow 0.35s ease,
+        border 0.35s ease,
+        opacity 0.35s ease;
+    opacity: 1;
+}
+
+.card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(59, 130, 246, 0.4);
+    border: 1px solid rgba(59, 130, 246, 0.9);
+}
+
+/* Cartes “pro” fixes, bordure bleue, pas d’animation hover */
+.card-blue {
+    border: 2px solid #3b82f6; /* bleu vif */
+    box-shadow: 0 4px 10px rgba(59,130,246,0.2); /* légère ombre */
+    transform: none; /* pas de déplacement au hover */
+}
+
+.card-blue:hover {
+    transform: none; /* aucun effet hover */
+    box-shadow: 0 4px 10px rgba(59,130,246,0.2); /* reste constant */
+    border: 2px solid #3b82f6; /* reste bleu */
+}
+
+
+
+
+.vacations{
+    flex:2;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+.waiting{
+    flex:1;
+}
+.agent{
+    background:#1f2937;
+    padding:6px;
+    border-radius:6px;
+    margin-top:5px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.csu{
+    background:#f59e0b;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:10px;
+}
+.csu-button{
+    background:#dc2626;
+    margin-left:5px;
+    padding:4px 6px;
+    border-radius:5px;
+}
+.agent.dragging{opacity:0.5;}
+
+
+.waiting{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+/* Bloc attente */
+.waiting > .card:first-child{
+    min-height:400px; /* taille minimum */
+}
+
+/* Bloc formateurs */
+.waiting .trainers{
+    min-height:150px;
+}
+
+
+#adminHome {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    max-width: 1000px;
+}
+
+.admin-grid {
+    display: flex;                  /* Flexbox au lieu de Grid */
+    flex-wrap: wrap;                /* Permet plusieurs lignes si nécessaire */
+    justify-content: center;        /* Centre les cartes sur la ligne */
+    gap: 25px;                      /* espace entre les cartes */
+    width: 100%;
+    max-width: 800px;
+}
+
+
+/* Pour l’admin uniquement : dernière carte occupe toute la largeur */
+.admin-grid.admin #btnAllAgents {
+    grid-column: 1 / -1;
+}
+
+#adminHome .card {
+    flex: 1 1 260px; /* largeur min 260px, mais peut grandir pour remplir l’espace */
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.card-text {
+    display: block;      /* assure que le texte reste sur sa ligne */
+    margin-top: 10px;    /* espace entre le titre et le texte */
+}
+
+
+
+#btnAllAgents {
+    flex: 1 1 100%;                /* prend toute la largeur disponible */
+}
+
+
+h1 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    text-align: center;
+    color: #1e40af; /* bleu professionnel */
+    letter-spacing: 1px;
+    margin: 40px 0 20px 0;
+    text-transform: uppercase;
+    position: relative;
+}
+
+/* Ligne décorative sous le titre */
+h1::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 4px;
+    background-color: #2563eb; /* bleu vif pour accent */
+    margin: 12px auto 0 auto;
+    border-radius: 2px;
+}
+
+#btnAdmin {
+    display: none;
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+}
+
+#btnAdmin:hover {
+    background: linear-gradient(135deg, #2563eb, #3b82f6); /* reste instantané */
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4);
+}
+
+#pageReglement #mainTitle {
+    display: none;
+}
+
+
+
+/* Styles pour l'accordéon */
+.accordion-category {
+    margin-bottom: 10px;
+    background: #1f2937;
+    border-radius: 8px;
+    overflow: hidden; /* important pour l'animation */
+}
+
+.accordion-header {
+    cursor: pointer;
+    font-weight: 600;
+    padding: 10px;
+    user-select: none;
+    border-bottom: 1px solid #374151;
+    background: #1f2937;
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0 10px; /* padding vertical supprimé ici */
+}
+
+.accordion-content.active {  /* ou .open selon ton JS */
+    max-height: 500px; /* ou auto si tu utilises JS pour calculer */
+    padding: 10px; /* padding vertical seulement quand ouvert */
+}
+
+
+#procAPJ {
+    display: none; /* rend l'input complètement invisible */
+}
+
+
+
+
+.toast {
+    position: fixed;
+    top: 20px;
+    left: 20px; /* Haut gauche */
+    background-color: #10b981;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-100%); /* départ hors écran à gauche */
+    transition: transform 0.5s ease, opacity 0.5s ease;
+    z-index: 9999;
+}
+.toast.show {
+    opacity: 1;
+    transform: translateX(0); /* animation slide depuis la gauche */
+}
+
+
+</style>
+</head>
+<body>
+<h1 id="mainTitle" style="text-align:center; font-size:32px; color:#2563eb; margin-bottom:20px; margin-top:40px;">
+    Intranet Brigade Municipale
+</h1>
+    <button id="btnAdmin">
+    ⚙️ Admin
+    </button>
+
+
+
+<!-- INSCRIPTION -->
+<div class="container" id="pageInscription" style="display:none;">
+    <h2>Inscription</h2>
+    <input id="rPrenom" placeholder="Prénom">
+    <input id="rNom" placeholder="Nom">
+    <input id="rGrade" placeholder="Grade">
+    <input id="rArrivalDate" type="date" placeholder="Date d'arrivée" />
+    <input id="rPass" type="password" placeholder="Mot de passe">
+    <button id="btnRegister">Créer compte</button>
+    <a id="linkToLogin">Déjà un compte ? Connexion</a>
+</div>
+
+<!-- LOGIN -->
+<div class="container" id="pageLogin">
+    <h2>Connexion</h2>
+    <input id="lPrenom" placeholder="Prénom">
+    <input id="lNom" placeholder="Nom">
+    <input id="lPass" type="password" placeholder="Mot de passe">
+    <button id="btnLogin">Connexion</button>
+    <a id="linkToRegister">Pas de compte ? Inscription</a>
+</div>
+
+
+<!-- HOME APRÈS CONNEXION (Admin) -->
+<div class="container" id="adminHome">
+    <h2>Admin - Choisissez une option :</h2>
+
+    <div class="admin-grid admin">
+        <!-- Carte 1 -->
+        <div class="card" id="btnManageAccounts" style="cursor:pointer; text-align:center;">
+            <h3>Comptes</h3>
+            <p>Gérer les comptes en attente</p>
+        </div>
+
+        <!-- Carte 2 -->
+        <div class="card" id="btnTotalHours" style="cursor:pointer; text-align:center;">
+            <h3>Heures Totales</h3>
+            <p>Voir les heures des agents</p>
+        </div>
+
+        <!-- Carte 3 pleine largeur -->
+<div class="card" id="btnAllAgents" style="cursor:pointer; text-align:center;">
+    <h3>Tous les agents</h3>
+    <p class="card-text">Voir et modifier sanctions / formations</p>
+</div>
+
+    </div>
+
+    <!-- Bouton retour -->
+    <button id="btnBackToHome" 
+        style="margin-top:30px; padding:12px 20px; border-radius:8px; background:#2563eb; color:white; cursor:pointer; font-weight:600; transition: all 0.25s ease-in-out;"
+        onmouseover="this.style.background='#1e40af'; this.style.transform='scale(1.03)';"
+        onmouseout="this.style.background='#2563eb'; this.style.transform='scale(1)';">
+        ⬅️ Accueil
+    </button>
+</div>
+
+
+
+<!-- HOME APRÈS CONNEXION (Agent) -->
+<div class="container" id="homePage" 
+     style="display:none; flex-direction:column; align-items:center; 
+            width:90%; max-width:900px; margin:40px auto; 
+            background:#111827; padding:40px; border-radius:12px; color:white;">
+
+    <h2 style="margin-bottom:30px; text-align:center;">Bienvenue</h2>
+
+    <div style="display:flex; 
+                gap:40px; 
+                flex-wrap:wrap; 
+                justify-content:center; 
+                width:100%;">
+
+        <div class="card" id="btnMDT"
+             style="cursor:pointer; 
+                    flex:1 1 320px; 
+                    text-align:center; 
+                    padding:35px; 
+                    background:#0a0f1a; 
+                    border-radius:12px;">
+            <h3 style="font-size:22px;">MDT / Dispatch</h3>
+            <p style="font-size:16px;">Voir et gérer les vacations</p>
+        </div>
+
+        <div class="card" id="btnPointeuse"
+             style="cursor:pointer; 
+                    flex:1 1 320px; 
+                    text-align:center; 
+                    padding:35px; 
+                    background:#0a0f1a; 
+                    border-radius:12px;">
+            <h3 style="font-size:22px;">Pointeuse</h3>
+            <p style="font-size:16px;">Gérer vos heures de service</p>
+        </div>
+
+        <div class="card" id="btnReglement"
+     style="cursor:pointer; 
+            flex:1 1 320px; 
+            text-align:center; 
+            padding:35px; 
+            background:#0a0f1a; 
+            border-radius:12px;">
+    <h3 style="font-size:22px;">Brigade Municipale</h3>
+    <p style="font-size:16px;">Information sur la Brigade Municipale</p>
+</div>
+</div>
+</div>
+
+
+
+
+<!-- PAGE BRIGADE MUNICIPALE -->
+<div class="container" id="pageBrigade" 
+     style="display:none; flex-direction:column; align-items:center; 
+            width:90%; max-width:900px; margin:40px auto; 
+            background:#111827; padding:40px; border-radius:12px; color:white;">
+
+    <h2 style="margin-bottom:30px; text-align:center;">Brigade Municipale</h2>
+
+    <div style="display:flex; gap:40px; flex-wrap:wrap; justify-content:center; width:100%;">
+
+        <div class="card" id="btnTenues" style="cursor:pointer; flex:1 1 320px; text-align:center; padding:35px; background:#0a0f1a; border-radius:12px;">
+            <h3 style="font-size:22px;">Tenues</h3>
+            <p style="font-size:16px;">Voir les tenues réglementaires</p>
+        </div>
+
+        <div class="card" id="btnProcedures" style="cursor:pointer; flex:1 1 320px; text-align:center; padding:35px; background:#0a0f1a; border-radius:12px;">
+            <h3 style="font-size:22px;">Procédures</h3>
+            <p style="font-size:16px;">Consulter les procédures internes</p>
+        </div>
+
+        <div class="card" id="btnReglementBrigade" style="cursor:pointer; flex:1 1 320px; text-align:center; padding:35px; background:#0a0f1a; border-radius:12px;">
+            <h3 style="font-size:22px;">Règlement</h3>
+            <p style="font-size:16px;">Lire le règlement complet</p>
+        </div>
+
+    </div>
+
+    <button id="btnBackHomeFromBrigade" style="margin-top:30px; padding:12px 20px; border-radius:8px; background:#2563eb; color:white; cursor:pointer; font-weight:600; transition: all 0.25s ease-in-out;"
+        onmouseover="this.style.background='#1e40af'; this.style.transform='scale(1.03)';"
+        onmouseout="this.style.background='#2563eb'; this.style.transform='scale(1)';">
+        ⬅️ Accueil
+    </button>
+
+</div>
+
+
+
+<!-- POINTEUSE -->
+<div class="container" id="pagePointeuse" 
+     style="display:none; flex-direction:column; align-items:center; padding:30px; margin:80px auto 20px auto; max-width:600px; box-shadow:0 8px 20px rgba(0,0,0,0.3); border-radius:12px; background:#111827; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+    
+    <h2 style="text-align:center; margin-bottom:20px; color:#f3f4f6;">Pointeuse</h2>
+
+    <div id="pointeuseInfo" style="margin-bottom:20px; font-weight:bold; color:#e5e7eb;"></div>
+
+    <!-- Boutons service -->
+    <button id="btnStartShift" 
+        style="margin-bottom:10px; background:#16a34a; color:white; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:600; transition: all 0.25s ease-in-out;"
+        onmouseover="this.style.background='#15803d'; this.style.transform='scale(1.03)';"
+        onmouseout="this.style.background='#16a34a'; this.style.transform='scale(1)';">
+        🟢 Début de service
+    </button>
+
+    <button id="btnEndShift" 
+        style="margin-bottom:20px; background:#dc2626; color:white; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:600; transition: all 0.25s ease-in-out;"
+        onmouseover="this.style.background='#b91c1c'; this.style.transform='scale(1.03)';"
+        onmouseout="this.style.background='#dc2626'; this.style.transform='scale(1)';">
+        🔴 Fin de service
+    </button>
+
+    <!-- Historique -->
+    <div style="width:100%;">
+        <h3 style="margin-bottom:10px; color:#f3f4f6;">Historique</h3>
+        <div id="pointeuseHistory" style="display:flex; flex-direction:column; gap:8px; max-height:300px; overflow-y:auto; padding-right:5px;"></div>
+    </div>
+
+    <!-- Retour -->
+    <button id="btnBackHomeFromPointeuse" 
+        style="margin-top:20px; padding:10px 15px; border-radius:8px; background:#2563eb; color:white; cursor:pointer; font-weight:600; transition: all 0.25s ease-in-out;"
+        onmouseover="this.style.background='#1e40af'; this.style.transform='scale(1.03)';"
+        onmouseout="this.style.background='#2563eb'; this.style.transform='scale(1)';">
+        ⬅️ Retour Accueil
+    </button>
+</div>
+
+
+
+
+
+
+<div class="container" id="pageProcedures" 
+     style="display:none; flex-direction:column; align-items:center;
+            width:90%; max-width:900px; margin:40px auto; 
+            background:#111827; padding:40px; border-radius:12px; color:white;
+            max-height:90vh; overflow-y:scroll; scrollbar-width:none; -ms-overflow-style:none;">
+
+    <h2 style="margin-bottom:30px; text-align:center;">Procédures internes</h2>
+
+    <!-- Formulaire -->
+    <div style="display:flex; flex-direction:column; gap:15px; width:100%; max-width:700px;">
+        <input id="procNom" placeholder="Nom" style="padding:8px; border-radius:6px; border:none;">
+        <input id="procPrenom" placeholder="Prénom" style="padding:8px; border-radius:6px; border:none;">
+        <input id="procDOB" type="date" placeholder="Date de naissance" style="padding:8px; border-radius:6px; border:none;">
+        <input id="procTaille" placeholder="Taille (cm)" style="padding:8px; border-radius:6px; border:none;">
+        <select id="procSexe" style="padding:8px; border-radius:6px; border:none;">
+            <option value="M">M</option>
+            <option value="F">F</option>
+        </select>
+
+        <div id="infractionsList" style="width:100%; max-width:700px; margin-top:20px; color:white;"></div>
+
+        <input id="procTel" placeholder="Numéro de téléphone" style="padding:8px; border-radius:6px; border:none;">
+        
+        <div id="droitsContainer" style="font-size: 1em;">
+    <label style="display:block; font-size:1.2em; margin-bottom:5px;">
+        <input type="checkbox" class="droitCheckbox" value="Avocat" id="chkAvocat"> <strong>Avocat :</strong>
+    </label>
+
+    <!-- Case présence avocat, cachée par défaut -->
+    <div id="presenceAvocatContainer" style="display:none; margin-left:20px; font-size:1em;">
+    <strong>Présence avocat :</strong><br>
+
+    <label style="margin-right:15px;">
+        <input type="checkbox" id="presenceOui"> Oui
+    </label>
+
+    <label>
+        <input type="checkbox" id="presenceNon"> Non
+    </label>
+</div>
+
+
+    <label style="display:block; font-size:1.2em; margin-bottom:5px;">
+        <input type="checkbox" class="droitCheckbox" value="Soins médicaux"> <strong>Soins médicaux :</strong>
+    </label>
+    <label style="display:block; font-size:1.2em; margin-bottom:5px;">
+        <input type="checkbox" class="droitCheckbox" value="À boire et manger"> <strong>À boire et manger</strong>
+    </label>
+</div>
+
+
+        <input id="procAPJ" placeholder="APJ en charge de la procédure" style="padding:8px; border-radius:6px; border:none;">
+        <textarea id="procObservation" placeholder="Observation de garde à vue" 
+                  style="padding:8px; border-radius:6px; border:none; height:80px;"></textarea>
+        <textarea id="procRapport" placeholder="Rapport succinct de l'intervention" 
+                  style="padding:8px; border-radius:6px; border:none; height:80px;"></textarea>
+
+        <button id="procGenerateBtn" style="padding:10px; border-radius:8px; background:#2563eb; color:white; font-weight:600; cursor:pointer;">
+            Générer le rapport
+        </button>
+    </div>
+
+    <!-- Texte généré -->
+    <div id="procOutput" 
+         style="margin-top:30px; white-space:pre-line; background:#1f2937; padding:20px; border-radius:12px; width:100%; max-width:700px; min-height:200px; overflow-y:auto; scrollbar-width:none; -ms-overflow-style:none;">
+    </div>
+
+    <button id="copyDiscordBtn" 
+        style="padding:10px; border-radius:8px; background:#10b981; color:white; font-weight:600; cursor:pointer; margin-top:10px;">
+    Copier pour Discord
+</button>
+
+<div id="copyToast" class="toast">Texte copié pour Discord !</div>
+
+
+
+</div>
+
+<style>
+  /* Masque la scrollbar sur Chrome, Safari et Edge */
+  #pageProcedures::-webkit-scrollbar,
+  #procOutput::-webkit-scrollbar {
+      display: none;
+  }
+</style>
+
+
+
+
+
+
+<!-- PAGE RÈGLEMENT -->
+<div id="pageReglement" style="
+    display:none;
+    flex-direction:column;
+    background:#0a0f1a;
+    color:white;
+    min-height:100vh;
+    max-height:100vh;
+    padding:20px;
+    border-radius:12px;
+    overflow:hidden;  /* cache la scrollbar pour le conteneur principal */
+    margin-top: 150px;
+">
+
+
+    <h1 style="text-align:center; margin-bottom:20px; margin-top: 10px;">📘 CODE DE DÉONTOLOGIE – BRIGADE MUNICIPALE</h1>
+
+    <!-- Conteneur scrollable pour tout le texte -->
+    <div style="
+        flex:1;
+        overflow-y: scroll; /* scroll avec la souris */
+        -ms-overflow-style: none;  /* IE et Edge */
+        scrollbar-width: none;     /* Firefox */
+        padding-right:10px;
+    " onscroll="">
+
+        <p><strong>La Brigade Municipale, placée sous l’autorité compétente pour les missions de sécurité intérieure, agit dans le respect strict des lois et du Code de procédure pénale.</strong><br>
+        Elle assure :</p>
+        <ul>
+            <li>La défense des institutions</li>
+            <li>Le respect des lois</li>
+            <li>Le maintien de l’ordre public</li>
+            <li>La protection des personnes et des biens</li>
+            <li>Les policiers exercent leurs fonctions avec loyauté, honneur, impartialité et dévouement.</li>
+        </ul>
+
+        <h3>TITRE I – PRINCIPES GÉNÉRAUX</h3>
+        <p><strong>Article R. 434-101 – Mission</strong><br>
+        La Brigade Municipale exerce ses missions dans le respect strict des lois et règlements en vigueur.</p>
+        <p><strong>Article R. 434-102 – Principe hiérarchique</strong><br>
+        L’autorité hiérarchique donne des ordres précis et en assume la responsabilité. Les ordres suivent la voie hiérarchique sauf urgence. Tout fait grave, même hors service, doit être signalé.</p>
+        <p><strong>Article R. 434-103 – Obéissance</strong><br>
+        L’exécution des ordres est obligatoire. Exception : ordre manifestement illégal compromettant gravement l’intérêt public. En cas de doute, l’agent signale l’illégalité et peut demander confirmation écrite. L’ordre écrit n’exonère pas de responsabilité.</p>
+        <p><strong>Article R. 434-104 – Responsabilité</strong><br>
+        Chaque agent demeure personnellement responsable de ses actes. Tout manquement expose à des sanctions disciplinaires et/ou pénales.</p>
+        <p><strong>Article R. 434-105 – Protection fonctionnelle</strong><br>
+        L’État protège juridiquement le policier contre menaces, violences ou poursuites liées au service, hors faute personnelle.</p>
+        <p><strong>Article R. 434-106 – Obligations du supérieur</strong><br>
+        Le supérieur protège l’intégrité physique et mentale de ses subordonnés et assure une formation adaptée et actualisée.</p>
+
+        <h3>TITRE II – DEVOIRS PROFESSIONNELS</h3>
+        <p><strong>Article R. 434-107 – Secret professionnel</strong><br>
+        Toute information obtenue dans le cadre du service est strictement confidentielle.</p>
+        <p><strong>Article R. 434-108 – Probité</strong><br>
+        Interdiction d’accepter cadeaux ou avantages. Interdiction d’utiliser sa fonction à des fins personnelles.</p>
+        <p><strong>Article R. 434-109 – Discernement</strong><br>
+        L’agent agit avec sang-froid et proportionne sa réponse aux risques et menaces.</p>
+        <p><strong>Article R. 434-110 – Impartialité</strong><br>
+        Aucune discrimination n’est tolérée. Neutralité absolue dans l’exercice des missions.</p>
+        <p><strong>Article R. 434-111 – Devoir de réserve</strong><br>
+        Neutralité religieuse, politique et philosophique en service. Hors service, liberté d’expression limitée par le devoir de réserve.</p>
+        <p><strong>Article R. 434-112 – Non cumul d’activité</strong><br>
+        Toute activité privée lucrative doit respecter strictement le cadre légal.</p>
+        <p><strong>Article R. 434-113 – Disponibilité</strong><br>
+        Le policier est disponible selon les nécessités du service.</p>
+
+        <h3>TITRE III – RELATION AVEC LA POPULATION</h3>
+        <p><strong>Article R. 434-114 – Comportement</strong><br>
+        Courtoisie et vouvoiement obligatoires. Respect constant de la dignité humaine.</p>
+        <p><strong>Article R. 434-115 – Contrôles d’identité</strong><br>
+        Interdiction de contrôle fondé sur des caractéristiques physiques. Respect de la dignité. Palpation uniquement si nécessaire pour la sécurité.</p>
+        <p><strong>Article R. 434-116 – Personnes interpellées</strong><br>
+        Protection contre toute violence ou traitement dégradant. Menottes uniquement si danger ou risque de fuite.</p>
+        <p><strong>Article R. 434-117 – Présomption d’innocence</strong><br>
+        Toute personne est présumée innocente jusqu’à décision judiciaire définitive.</p>
+        <p><strong>Article R. 434-118 – Assistance et aide aux victimes</strong><br>
+        Obligation d’assistance, même hors service. Attention particulière aux victimes et respect de la confidentialité.</p>
+        <p><strong>Article R. 434-119 – Données personnelles</strong><br>
+        Respect strict des règles relatives aux fichiers et à la vie privée.</p>
+        <p><strong>Article R. 434-120 – Sources humaines</strong><br>
+        Recours aux informateurs uniquement selon les règles en vigueur.</p>
+
+        <h3>TITRE IV – USAGE DE LA FORCE</h3>
+        <p><strong>Article R. 434-121 – Principe de nécessité</strong><br>
+        La force ne peut être employée que si elle est légale, nécessaire et proportionnée.</p>
+        <p><strong>Article R. 434-122 – Arme létale</strong><br>
+        L’arme létale constitue un dernier recours absolu, uniquement en cas de légitime défense ou de danger grave et imminent. Tout usage peut faire l’objet d’un contrôle hiérarchique ou d’une enquête.</p>
+        <p><strong>Article R. 434-123 – Arme hors service</strong><br>
+        Autorisation à partir du grade de Brigadier. Usage exclusivement en légitime défense. Brassard et port dissimulé obligatoires.</p>
+        <p><strong>Article R. 434-124 – Tir sur véhicule</strong><br>
+        Respect strict des ordres du commandement.</p>
+
+        <h3>TITRE V – TENUE, DISCIPLINE ET VIE INTERNE</h3>
+        <p><strong>Article R. 434-125 – Tenue réglementaire</strong><br>
+        Uniforme obligatoire en service sauf exception réglementaire. Uniformité stricte. Interdits : polo noir en Police Secours, cache-cou, masque, casquette non réglementaire ou portée à l’envers. Calot autorisé.</p>
+        <p><strong>Article R. 434-126 – Comportement exemplaire</strong><br>
+        Comportement irréprochable en service comme hors service, y compris sur les réseaux sociaux.</p>
+        <p><strong>Article R. 434-127 – Respect interne</strong><br>
+        Langage correct obligatoire. Tout manque de respect est sanctionnable.</p>
+        <p><strong>Article R. 434-128 – Vie privée</strong><br>
+        Interdiction de diffuser photos ou vidéos sans autorisation.</p>
+        <p><strong>Article R. 434-129 – Professionnalisme</strong><br>
+        Les différends personnels ne doivent jamais impacter le service.</p>
+
+        <h3>TITRE VI – RÈGLES OPÉRATIONNELLES</h3>
+        <p><strong>Article R. 434-130 – Coopération interservices</strong><br>
+        Coopération respectueuse avec les services publics et privés.</p>
+        <p><strong>Article R. 434-131 – Véhicules et matériel</strong><br>
+        Interdiction d’utiliser les véhicules d’autres services. Usage strictement encadré des armes et matériels.</p>
+        <p><strong>Article R. 434-132 – Fourrière</strong><br>
+        Recours justifié. Contact privilégié avec les dépanneurs.</p>
+        <p><strong>Article R. 434-133 – Lieux sensibles</strong><br>
+        Intervention soumise à autorisation d’un officier, préfet ou procureur.</p>
+        <p><strong>Article R. 434-134 – Signalisation</strong><br>
+        Véhicule léger : 3 cônes en moyenne. Barrières et panneaux réservés aux unités routières.</p>
+        <p><strong>Article R. 434-135 – Service minimum</strong><br>
+        Toute présence en ville entre 12h00 et 00h00 impose un minimum d’une heure de service.</p>
+
+        <h3>TITRE VII – CONTRÔLE ET SANCTIONS</h3>
+        <p><strong>Article R. 434-136 – Contrôle</strong><br>
+        Les agents sont soumis au contrôle hiérarchique, aux inspections compétentes et aux autorités légales.</p>
+        <p><strong>Article R. 434-137 – Sanctions</strong><br>
+        Tout manquement au présent code expose à une sanction disciplinaire, sans préjudice d’éventuelles poursuites pénales.</p>
+
+        <div style="
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            background: #2563eb;
+            color: white;
+            text-align: center;
+            font-weight: 600;
+            font-size: 18px;
+        ">
+            🔹 Corps de Commandement 🔹<br>
+            Brigade Municipale – Respect & Discipline
+        </div>
+
+    </div> <!-- fin scrollable -->
+
+    <!-- Bouton Accueil centré en bas -->
+    <div style="text-align:center; margin-top:10px;">
+        <button id="btnBackFromReglement" style="
+            margin-top: 10px;
+            margin-bottom: 30px;
+            padding:10px 15px;
+            border-radius:8px;
+            background:#2563eb;
+            color:white;
+            cursor:pointer;
+            font-weight:600;
+            transition: all 0.25s ease-in-out;"
+            onmouseover="this.style.background='#1e40af'; this.style.transform='scale(1.03)';"
+            onmouseout="this.style.background='#2563eb'; this.style.transform='scale(1)';">
+            ⬅️ Accueil
+        </button>
+    </div>
+
+</div>
+
+
+
+<!-- MDT -->
+<div id="mdt">
+    <div class="sidebar">
+        <h3>Agent</h3>
+        <div id="agentInfo"></div>
+        <button id="btnAttente" style="margin-bottom:10px; background:#16a34a; color:white; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:600; transition: all 0.25s ease-in-out;"
+            onmouseover="this.style.background='#15803d'; this.style.transform='scale(1.03)';"
+            onmouseout="this.style.background='#16a34a'; this.style.transform='scale(1)';">
+            🟢 Attente
+        </button>
+        <button id="btnQuitterAttente" style="margin-bottom:10px; background:#dc2626; color:white; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:600; transition: all 0.25s ease-in-out;"
+            onmouseover="this.style.background='#b91c1c'; this.style.transform='scale(1.03)';"
+            onmouseout="this.style.background='#dc2626'; this.style.transform='scale(1)';">
+            🔴 Quitter
+        </button>
+        <div class="csu">
+            <h4>CSU</h4>
+            <div style="display:flex; align-items:center; gap:20px;"></div>
+            <div id="csuInfo">Aucun agent CSU</div>
+            <button id="joinCSU" style="background:#2563eb; color:white; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; transition: all 0.25s ease-in-out;"
+                onmouseover="this.style.background='#1e40af'; this.style.transform='scale(1.03)';"
+                onmouseout="this.style.background='#2563eb'; this.style.transform='scale(1)';">
+                Rejoindre CSU
+            </button>
+            <button id="leaveCSU" style="display:none; background:#dc2626; color:white; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; transition: all 0.25s ease-in-out;"
+                onmouseover="this.style.background='#b91c1c'; this.style.transform='scale(1.03)';"
+                onmouseout="this.style.background='#dc2626'; this.style.transform='scale(1)';">
+                Quitter CSU
+            </button>
+        </div>
+        <button id="btnBackHomeFromMDT" style="margin-top:20px; padding:10px 15px; border-radius:8px; background:#2563eb; color:white; cursor:pointer; font-weight:600; transition: all 0.25s ease-in-out;"
+            onmouseover="this.style.background='#1e40af'; this.style.transform='scale(1.03)';"
+            onmouseout="this.style.background='#2563eb'; this.style.transform='scale(1)';">
+            ⬅️ Accueil
+        </button>
+    </div>
+
+    <div class="main">
+
+    <div class="vacations" id="vacationsDiv"></div>
+
+    <div class="waiting" style="display:flex; flex-direction:column; gap:20px;">
+
+        <div class="card card-blue">
+    <h3>Attente d'affectation</h3>
+    <div id="waitingList"></div>
+</div>
+
+        <div class="card card-blue trainers">
+    <h3>Formateurs disponibles</h3>
+    <div id="trainersList"></div>
+</div>
+
+    </div>
+    </div>
+</div>
+
+
+
+
+
+<!-- PAGE ADMIN -->
+<div class="container" id="pageAdmin" style="display:none;">
+    <h2>Validation des comptes</h2>
+    <div id="adminList" style="display:flex; flex-direction:column; gap:10px;"></div>
+    <button id="btnBackAdmin"style="margin-top:10px; padding:10px; border-radius:8px; background:#2563eb; color:white; cursor:pointer; font-weight:600; transition: all 0.25s ease-in-out;"
+        onmouseover="this.style.background='#1e40af'; this.style.transform='scale(1.03)';"
+        onmouseout="this.style.background='#2563eb'; this.style.transform='scale(1)';">
+        ⬅️ Retour</button>
+    
+</div>
+
+<!-- PAGE ADMIN - HEURES TOTALES -->
+<div class="container" id="pageTotalHours" 
+     style="display:none; padding:30px; margin:1000px auto 20px auto; max-width:800px; box-shadow:0 8px 20px rgba(0,0,0,0.3); border-radius:12px; background:#111827; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+    <h2 style="text-align:center; margin-bottom:20px; color:#f3f4f6;">Heures totales des agents</h2>
+
+<button id="sortButton" type="button"
+        style="margin-bottom:15px; padding:8px 15px; border-radius:6px; cursor:pointer;">
+    📶 Trier par grade
+</button>
+
+
+    <div id="totalHoursList" style="display:flex; flex-direction:column; gap:10px;">
+    </div>
+
+    <button id="btnResetHours" 
+        style="margin-top:20px; background:#dc2626; color:white; padding:10px; border-radius:8px; cursor:pointer; font-weight:600; transition: all 0.25s ease-in-out;"
+        onmouseover="this.style.background='#b91c1c'; this.style.transform='scale(1.03)';"
+        onmouseout="this.style.background='#dc2626'; this.style.transform='scale(1)';">
+        🔄 Reset heures
+    </button>
+
+    <button id="btnBackAdminHome" 
+        style="margin-top:10px; padding:10px; border-radius:8px; background:#2563eb; color:white; cursor:pointer; font-weight:600; transition: all 0.25s ease-in-out;"
+        onmouseover="this.style.background='#1e40af'; this.style.transform='scale(1.03)';"
+        onmouseout="this.style.background='#2563eb'; this.style.transform='scale(1)';">
+        ⬅️ Retour
+    </button>
+</div>
+
+
+<!-- PAGE ADMIN - TOUS LES AGENTS -->
+<div class="container" id="pageAllAgents" 
+    style="
+        display:none; 
+        padding:30px; 
+        margin:600px auto 20px auto;   /* réduit le margin-top pour ne pas être trop bas */
+        max-width:800px; 
+        box-shadow:0 8px 20px rgba(0,0,0,0.3); 
+        border-radius:12px; 
+        background:#111827; 
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    ">
+    <h2 style="text-align:center; margin-bottom:20px; color:#f3f4f6;">Votre effectifs</h2>
+
+    <div id="allAgentsList" style="display:flex; flex-direction:column; gap:10px;"></div>
+
+    <button id="btnBackAllAgents"
+        style="margin-top:10px; padding:10px; border-radius:8px; background:#2563eb; color:white; cursor:pointer; font-weight:600; transition: all 0.25s ease-in-out;"
+        onmouseover="this.style.background='#1e40af'; this.style.transform='scale(1.03)';"
+        onmouseout="this.style.background='#2563eb'; this.style.transform='scale(1)';">
+        ⬅️ Retour
+    </button>
+</div>
+
+
+
+<div class="container" id="pageAgentDetail" style="
+    display:none; 
+    flex-direction:column; 
+    align-items:center; 
+    width:90%;         /* agrandi par rapport à 100% du parent */
+    max-width:800px;  /* limite pour grands écrans */
+    min-width:600px;   /* garde un minimum pour le confort */
+    height: 1000px;;       /* adapte la hauteur au contenu */
+    padding:30px;      /* plus de padding pour respirer */
+">
+    <h2 style="margin-bottom:20px;">Dossier Agent</h2>
+    <div id="agentDetailContent" style="
+        width:100%; 
+        display:flex; 
+        flex-direction:column; 
+        gap:10px;
+    "></div>
+
+    <button id="btnBackAgentDetail"
+        style="
+            margin-top:20px; 
+            padding:12px 20px; 
+            border-radius:8px; 
+            background:#2563eb; 
+            color:white; 
+            cursor:pointer; 
+            font-weight:600; 
+            transition: all 0.25s ease-in-out;
+        "
+        onmouseover="this.style.background='#1e40af'; this.style.transform='scale(1.03)';"
+        onmouseout="this.style.background='#2563eb'; this.style.transform='scale(1)';">
+        ⬅️ Retour
+    </button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, collection, onSnapshot, getDocs }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// CONFIG FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyDX486w4yzHXDOgJ66Q0VjMRXMGtBFNdIY",
+  authDomain: "mydispatch-3a386.firebaseapp.com",
+  projectId: "mydispatch-3a386",
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ELEMENTS
+const pageInscription=document.getElementById("pageInscription");
+const pageLogin=document.getElementById("pageLogin");
+const pageMDT=document.getElementById("mdt");
+const agentInfo=document.getElementById("agentInfo");
+const waitingList=document.getElementById("waitingList");
+const vacationsDiv=document.getElementById("vacationsDiv");
+const csuInfo=document.getElementById("csuInfo");
+const joinCSU=document.getElementById("joinCSU");
+const leaveCSU=document.getElementById("leaveCSU");
+const rPrenom=document.getElementById("rPrenom");
+const rNom=document.getElementById("rNom");
+const rGrade=document.getElementById("rGrade");
+const rPass=document.getElementById("rPass");
+const lPrenom=document.getElementById("lPrenom");
+const lNom=document.getElementById("lNom");
+const lPass=document.getElementById("lPass");
+const btnRegister=document.getElementById("btnRegister");
+const btnLogin=document.getElementById("btnLogin");
+const linkToLogin=document.getElementById("linkToLogin");
+const linkToRegister=document.getElementById("linkToRegister");
+const btnAttente=document.getElementById("btnAttente");
+const btnQuitterAttente=document.getElementById("btnQuitterAttente");
+const homePage = document.getElementById("homePage");
+const pageTotalHours = document.getElementById("pageTotalHours");
+const totalHoursList = document.getElementById("totalHoursList");
+const btnBackAdminHome = document.getElementById("btnBackAdminHome");
+const pageBrigade = document.getElementById("pageBrigade");
+const btnTenues = document.getElementById("btnTenues");
+const btnProcedures = document.getElementById("btnProcedures");
+const btnReglementBrigade = document.getElementById("btnReglementBrigade");
+const btnBackHomeFromBrigade = document.getElementById("btnBackHomeFromBrigade");
+
+
+
+
+const btnAdmin = document.getElementById("btnAdmin");
+const adminHome = document.getElementById("adminHome");
+const pageAdmin = document.getElementById("pageAdmin");
+const adminList = document.getElementById("adminList");
+const btnBackAdmin = document.getElementById("btnBackAdmin");
+const pageAllAgents = document.getElementById("pageAllAgents");
+const allAgentsList = document.getElementById("allAgentsList");
+const pageAgentDetail = document.getElementById("pageAgentDetail");
+const agentDetailContent = document.getElementById("agentDetailContent");
+const btnBackAgentDetail = document.getElementById("btnBackAgentDetail");
+const btnManageAccounts = document.getElementById("btnManageAccounts");
+const btnTotalHours = document.getElementById("btnTotalHours");
+const btnAllAgents = document.getElementById("btnAllAgents");
+
+
+const gradeOrder = [
+    "Directeur Principal",
+    "Directeur Adjoint",
+    "Chef de Police",
+    "Chef de Service Classe Exceptionnel",
+    "Chef de Service Classe Supérieur",
+    "Chef de Service Classe Normal",
+    "Chef de Service Classe Stagiaire",
+    "Brigadier Chef Principal",
+    "Brigadier Chef",
+    "Brigadier",
+    "Gardien Principal",
+    "Gardien Titulaire",
+    "Gardien Stagiaire"
+];
+
+function sortByGrade(a, b) {
+    const indexA = gradeOrder.indexOf(a.grade);
+    const indexB = gradeOrder.indexOf(b.grade);
+
+    // Si le grade n'est pas dans la liste, le placer à la fin
+    const valA = indexA === -1 ? gradeOrder.length : indexA;
+    const valB = indexB === -1 ? gradeOrder.length : indexB;
+
+    return valA - valB;
+}
+
+
+// Ouvrir MDT depuis la page d'accueil
+document.getElementById("btnMDT").onclick = async () => {
+    await openMDT();
+};
+
+// Carte "Brigade Municipale" sur la page d'accueil
+const btnBrigadeHome = document.getElementById("btnReglement"); // oui, ton bouton home s'appelle btnReglement
+btnBrigadeHome.onclick = () => {
+    showPage(pageBrigade); // affiche les 3 cartes : Tenues, Procédures, Règlement
+};
+
+// Carte "Tenues" à l'intérieur de la page Brigade Municipale
+btnTenues.onclick = () => {
+    alert("En cours de dévloppement !");
+    // ou showPage(pageTenues) si tu crées une vraie page
+};
+
+// Carte "Procédures" à l'intérieur de la page Brigade Municipale
+btnProcedures.onclick = () => {
+    showPage(pageProcedures)
+};
+
+btnReglementBrigade.onclick = () => {
+    pageBrigade.style.display = "none"; // cache les 3 cartes
+    showPage(pageReglement); // affiche uniquement le règlement
+};
+
+
+// Bouton retour depuis la page Brigade Municipale
+btnBackHomeFromBrigade.onclick = () => {
+    showPage(homePage);
+};
+
+
+btnBackFromReglement.onclick = () => {
+    showPage(pageBrigade);
+};
+
+// Quand on clique sur la carte "Procédures" depuis la home
+btnProcedures.onclick = () => {
+    showPage(pageProcedures); // Affiche la page procédure
+};
+
+
+let currentUser=null;
+let isCSU=false;
+let isTrainer = false;
+
+// ADMINS AUTORISÉS
+const admins = ["Robin.Perrick", "Tommy.Angello", "de.de", "Mick.Ross"]; // <-- deux éléments
+// LISTE DES FORMATEURS AUTORISÉS
+const trainers = ["Tristan.De Morsef", "Rayan.Houda", "Yahya.Houda"]; // mettre l'ID Firestore = prenom.nom
+const recruiters = ["Yahya.Houda","Tristan.De Morsef" ]; // Mets les vrais ID ici
+
+const isAdmin = currentUser && admins.includes(currentUser.id);
+
+// NAVIGATION
+function showPage(page){
+
+    pageInscription.style.display="none";
+    pageLogin.style.display="none";
+    pageMDT.style.display="none";
+    pageAdmin.style.display="none";
+    homePage.style.display="none";
+    pagePointeuse.style.display="none";
+    adminHome.style.display = "none";
+    pageTotalHours.style.display="none";
+    pageAllAgents.style.display="none";
+    pageAgentDetail.style.display="none";
+    pageReglement.style.display = "none"; // <-- on cache aussi le règlement
+    pageBrigade.style.display ="none";
+
+
+    page.style.display="flex";
+
+    const header = document.getElementById("mainTitle");
+if (page === pageMDT || page === pageReglement) {
+    header.style.display = "none"; // cache sur MDT et règlement
+} else {
+    header.style.display = "block"; // visible sur les autres pages
+    if(page === pageBrigade){
+        header.style.marginTop = "130px"; // ajuste la valeur comme tu veux
+    } else {
+        header.style.marginTop = "40px"; // valeur normale pour les autres pages
+    }
+}
+}
+
+
+
+
+// --- Données des infractions ---
+const infractionsData = {
+    "Atteinte aux Biens": {
+        "Acte de vandalisme": {amende:5000, temps:15},
+        "Braquage ATM / Carrefour": {amende:3000, temps:15},
+        "Braquage de Brinks": {amende:30000, temps:30},
+        "Braquage de Bijouterie ou Banque": {amende:150000, temps:30},
+        "Cambriolage / Vol de Contenaire": {amende:4000, temps:15},
+        "Intrusion dans un bâtiment public": {amende:5000, temps:15},
+        "Possession de kit de crochetage": {amende:1500, temps:20},
+        "Possession de boîtier ATM": {amende:1500, temps:20},
+        "Port du masque en ville": {amende:1000, temps:0},
+        "Possession d’argent en espèce +10 000": {amende:0, temps:15},
+        "Possession d’argent sale": {amende:0, temps:20},
+        "Possession de bijoux": {amende:500, temps:10},
+        "Vol de véhicule": {amende:5000, temps:20}
+    },
+
+    "Atteinte aux personnes": {
+        "Complicité d’émeute": {amende:10000, temps:25},
+        "Canular téléphonique": {amende:5000, temps:15},
+        "Enlèvement ou prise d’otage": {amende:15000, temps:15},
+        "Escroquerie ou Arnaque": {amende:5000, temps:20},
+        "Évasion": {amende:20000, temps:30},
+        "Manifestation non déclarée": {amende:10000, temps:25},
+        "Menace de mort": {amende:15000, temps:30},
+        "Menace de mort sur agent": {amende:20000, temps:20},
+        "Meurtre/tentative": {amende:60000, temps:30},
+        "Meurtre/tentative sur agent": {amende:50000, temps:30},
+        "Rebellion": {amende:15000, temps:30},
+        "Outrage à agent": {amende:10000, temps:30},
+        "Propos/injures racistes": {amende:20000, temps:15},
+        "Refus de procédure": {amende:15000, temps:20},
+        "Trouble à l’ordre public": {amende:20000, temps:30},
+        "Tentative de corruption": {amende:20000, temps:20},
+        "Usurpation d’identité": {amende:20000, temps:15},
+        "Violence simple": {amende:3000, temps:10},
+        "Kidnapping": {amende:3000, temps:15},
+        "Violence sur agent": {amende:20000, temps:30}
+    },
+
+    "Code de la Route": {
+        "Abus de klaxon en centre-ville": {amende:200, temps:0},
+        "Conduite sans casque": {amende:300, temps:0},
+        "Conduite dangereuse": {amende:500, temps:0},
+        "Conduite sans permis": {amende:2000, temps:0},
+        "Conduite sans assurance": {amende:2500, temps:0},
+        "Course Poursuite": {amende:2500, temps:15},
+        "GO FAST": {amende:8000, temps:30},
+        "Délit de fuite": {amende:2000, temps:10},
+        "Vitesse excessive": {amende:1000, temps:0}
+    },
+
+    "Possession de Stupéfiants": {
+        "Matières premières (Weed, Meth, Cocaïne)": {amende:150, temps:20},
+        "Pochons de Weed, Meth, Cocaïne / crack": {amende:400, temps:20},
+        "Vente de drogues en flagrand delit": {amende:5000, temps:20}
+    },
+
+    "Possession d’arme illégale": {
+        "Flare/Fumigène/Mortier": {amende:250, temps:15},
+        "Batte de baseball/couteau": {amende:9500, temps:15},
+        "Mousquet": {amende:30000, temps:30},
+        "Pistolet": {amende:50000, temps:30},
+        "Mini SMG": {amende:50000, temps:30},
+        "MP5": {amende:100000, temps:30},
+        "M4": {amende:150000, temps:30},
+        "Munitions": {amende:200, temps:20},
+        "Cocktail Molotov/Pierres": {amende:300, temps:30}
+    }
+};
+
+
+// --- Génération de l'accordéon ---
+function renderInfractions() {
+    const container = document.getElementById("infractionsList");
+    container.innerHTML = "";
+
+    Object.entries(infractionsData).forEach(([categorie, infractions]) => {
+        const catDiv = document.createElement("div");
+        catDiv.classList.add("accordion-category");
+
+        const header = document.createElement("div");
+        header.textContent = categorie;
+        header.classList.add("accordion-header");
+
+        const content = document.createElement("div");
+        content.classList.add("accordion-content");
+
+        Object.entries(infractions).forEach(([nom, data]) => {
+            const label = document.createElement("label");
+            label.style.display = "flex";
+            label.style.justifyContent = "space-between";
+            label.style.cursor = "pointer";
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.value = nom;
+            checkbox.dataset.amende = data.amende;
+            checkbox.dataset.temps = data.temps;
+            checkbox.classList.add("infractionCheckbox");
+
+            // Ajout du temps de fin réel
+            const now = new Date();
+            const endTime = new Date(now.getTime() + data.temps * 60000); // minutes en ms
+            checkbox.dataset.endTime = endTime.getTime();
+
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(`${nom} - ${data.amende}€ | ${data.temps}min`));
+            content.appendChild(label);
+        });
+
+        header.onclick = () => {
+            content.style.maxHeight = content.style.maxHeight && content.style.maxHeight !== "0px"
+                ? "0"
+                : content.scrollHeight + "px";
+        };
+
+        catDiv.appendChild(header);
+        catDiv.appendChild(content);
+        container.appendChild(catDiv);
+    });
+
+    // Limite à 3 infractions cochées
+    const allCheckboxes = document.querySelectorAll(".infractionCheckbox");
+    allCheckboxes.forEach(cb => {
+        cb.addEventListener("change", () => {
+            const checked = Array.from(allCheckboxes).filter(c => c.checked);
+            if (checked.length >= 3) {
+                allCheckboxes.forEach(c => {
+                    if (!c.checked) c.disabled = true;
+                });
+            } else {
+                allCheckboxes.forEach(c => c.disabled = false);
+            }
+        });
+    });
+
+    // Mise à jour temps restant toutes les secondes
+    setInterval(() => {
+        const now = new Date().getTime();
+        allCheckboxes.forEach(cb => {
+            const endTime = parseInt(cb.dataset.endTime);
+            const remaining = Math.max(0, Math.ceil((endTime - now) / 60000)); // minutes
+            const labelText = cb.nextSibling.textContent.split("|")[0].trim();
+            cb.nextSibling.textContent = `${labelText} | ${remaining}min`;
+        });
+    }, 1000);
+}
+
+renderInfractions();
+
+
+
+
+
+
+// Afficher la case présence avocat si avocat est coché
+const chkAvocat = document.getElementById("chkAvocat");
+const presenceContainer = document.getElementById("presenceAvocatContainer");
+
+chkAvocat.addEventListener("change", () => {
+    presenceContainer.style.display = chkAvocat.checked ? "block" : "none";
+});
+
+// --- Génération du rapport ---
+document.getElementById("procGenerateBtn").onclick = () => {
+    const nom = document.getElementById("procNom").value.toUpperCase();
+    const prenom = document.getElementById("procPrenom").value.toUpperCase();
+    const dob = document.getElementById("procDOB").value;
+    const taille = document.getElementById("procTaille").value + "CM";
+    const sexe = document.getElementById("procSexe").value;
+    const tel = document.getElementById("procTel").value;
+    const apj = currentUser ? `${currentUser.nom} ${currentUser.prenom}` : "N/A";
+    document.getElementById("procAPJ").value = apj;
+    const observation = document.getElementById("procObservation").value;
+    const rapport = document.getElementById("procRapport").value;
+
+    const infractions = Array.from(document.querySelectorAll(".infractionCheckbox:checked"));
+
+    let totalAmende = 0;
+    let totalTemps = 0;
+    let infractionsText = "";
+
+    infractions.forEach(cb => {
+        totalAmende += parseInt(cb.dataset.amende);
+        totalTemps += parseInt(cb.dataset.temps);
+        infractionsText += cb.value + "\n";
+    });
+
+
+
+
+    
+    // --- DROITS ---
+const droitsCheckboxes = Array.from(document.querySelectorAll(".droitCheckbox"));
+const droitsCoches = droitsCheckboxes.filter(c => c.checked).map(c => c.value);
+
+let droitsText = "Néant";
+let presenceAvocatText = "Non";
+
+if (droitsCoches.length > 0) {
+
+    // Gestion présence avocat
+    if (droitsCoches.includes("Avocat")) {
+        const presenceOui = document.getElementById("presenceOui");
+        const presenceNon = document.getElementById("presenceNon");
+
+        if (presenceOui && presenceOui.checked) {
+            presenceAvocatText = "Oui";
+        } else if (presenceNon && presenceNon.checked) {
+            presenceAvocatText = "Non";
+        } else {
+            presenceAvocatText = "Non";
+        }
+    }
+
+    // Maintenant on affiche TOUS les droits cochés
+    droitsText = droitsCoches.join(", ");
+}
+
+
+let presenceLine = "";
+
+if (droitsCoches.includes("Avocat")) {
+    presenceLine = `\nPrésence avocat : ${presenceAvocatText}`;
+}
+
+
+
+    const outputElem = document.getElementById("procOutput");
+
+    if (window.gavInterval) clearInterval(window.gavInterval);
+
+    function updateGAVText() {
+        const now = new Date();
+        const debut = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+        const finDate = new Date(now.getTime() + totalTemps * 60000);
+        const fin = finDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+
+        const texteFinal = `[ADDITIF TRAITEMENT DES ANTECEDENTS JUDICIAIRES]
+Nom : ${nom}
+Prénom : ${prenom}
+Date de naissance : ${dob}
+Taille : ${taille}
+Sexe : ${sexe}
+Liste des infractions retenues :
+${infractionsText}
+Amende : ${totalAmende}€
+Heure de début de garde à vue et application des contraintes : ${debut}
+Heure de fin de garde à vue en sortie de cellule : ${fin}
+Temps de la mise en cellule : ${totalTemps} minutes
+Numéro de téléphone : ${tel}
+DROIT(S) EXERCÉS : ${droitsText}${presenceLine}
+APJ en charge de la procédure : ${apj}
+Observation de garde à vue : ${observation}
+Rapport succinct de l'intervention :
+${rapport}`;
+
+        outputElem.textContent = texteFinal;
+    }
+
+    updateGAVText();
+    window.gavInterval = setInterval(updateGAVText, 1000);
+
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    const copyBtn = document.getElementById("copyDiscordBtn");
+
+    if (!copyBtn) return;
+
+    copyBtn.addEventListener("click", async () => {
+        try {
+            // --- Récupération des valeurs ---
+            const nom = document.getElementById("procNom").value.toUpperCase();
+            const prenom = document.getElementById("procPrenom").value.toUpperCase();
+            const dob = document.getElementById("procDOB").value;
+            const taille = document.getElementById("procTaille").value + "CM";
+            const sexe = document.getElementById("procSexe").value;
+            const tel = document.getElementById("procTel").value;
+            const observation = document.getElementById("procObservation").value;
+            const rapport = document.getElementById("procRapport").value;
+
+            const droitsCheckboxes = Array.from(document.querySelectorAll(".droitCheckbox"));
+            const droitsCoches = droitsCheckboxes.filter(c => c.checked).map(c => c.value);
+            let droitsText = droitsCoches.join(", ") || "Néant";
+            let presenceAvocatText = "Non";
+            if (droitsCoches.includes("Avocat")) {
+                const presenceOui = document.getElementById("presenceOui");
+                const presenceNon = document.getElementById("presenceNon");
+                if (presenceOui && presenceOui.checked) presenceAvocatText = "Oui";
+                else if (presenceNon && presenceNon.checked) presenceAvocatText = "Non";
+            }
+
+            const infractions = Array.from(document.querySelectorAll(".infractionCheckbox:checked"));
+            const infractionsText = infractions.map(cb => `• ${cb.value}`).join("\n");
+            const totalAmende = infractions.reduce((sum, cb) => sum + parseInt(cb.dataset.amende), 0);
+            const totalTemps = infractions.reduce((sum, cb) => sum + parseInt(cb.dataset.temps), 0);
+
+            const now = new Date();
+            const debut = now.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+            const finDate = new Date(now.getTime() + totalTemps * 60000);
+            const fin = finDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+
+            const markdownText = `**[ADDITIF TRAITEMENT DES ANTÉCÉDENTS JUDICIAIRES]**
+**Nom :** ${nom}
+**Prénom :** ${prenom}
+**Date de naissance :** ${dob}
+**Taille :** ${taille}
+**Sexe :** ${sexe}
+**Infractions retenues :**
+${infractionsText}
+
+**Amende totale :** ${totalAmende}€
+**Garde à vue :**
+Heure de début : ${debut}
+Heure de fin : ${fin}
+Temps en cellule : ${totalTemps} minutes
+**Numéro de téléphone :** ${tel}
+**Droit(s) exercé(s) :** ${droitsText}
+${droitsCoches.includes("Avocat") ? "**Présence avocat :** " + presenceAvocatText : ""}
+**APJ en charge :** ${currentUser ? currentUser.nom + " " + currentUser.prenom : "N/A"}
+**Observation GAV :** ${observation}
+**Rapport succinct :**
+${rapport}`;
+
+            // --- Copie dans le presse-papier ---
+            await navigator.clipboard.writeText(markdownText);
+
+            // --- Notification toast ---
+            showToast("Texte copié pour Discord !", 2000, "#10b981"); // vert
+
+        } catch (err) {
+            console.error("Erreur copie : ", err);
+            showToast("Impossible de copier le texte !", 2000, "#ef4444"); // rouge
+        }
+    });
+});
+
+// --- Fonction pour afficher le toast ---
+function showToast(message, duration = 2000, color = "#10b981") {
+    let toast = document.getElementById("copyToast");
+
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "copyToast";
+        toast.className = "toast";
+        document.body.appendChild(toast);
+    }
+
+    toast.textContent = message;
+    toast.style.background = color;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, duration);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// 🔥 AJOUTE ÇA
+linkToLogin.onclick = () => showPage(pageLogin);
+linkToRegister.onclick = () => showPage(pageInscription);
+
+
+
+// INSCRIPTION
+btnRegister.onclick=async()=>{
+    const prenom=rPrenom.value.trim();
+    const nom=rNom.value.trim();
+    const grade=rGrade.value.trim();
+    const arrivalDate=rArrivalDate.value; // <-- Récupère la date
+    const pass=rPass.value.trim();
+    if(!prenom || !nom || !grade || !arrivalDate || !pass) return alert("Veuillez remplir tout les champs !");
+    const id=prenom+"."+nom;
+    const docRef=doc(db,"agents",id);
+    const snap=await getDoc(docRef);
+    if(snap.exists()) return alert("Ce compte existe déjà");
+    await setDoc(docRef,{
+    prenom,
+    nom,
+    grade,
+    pass,
+    validated:false,
+    inWaiting:false,
+    inVacation:null,
+    pointeuse: [],   // <-- ajout automatique
+    arrivalDate: arrivalDate, // <-- Stocke la date
+    sanctions: "",             // initialisation vide
+    formations: "",             // initialisation vide
+    formateur: false,
+    recruteur: false
+});
+
+    alert("Compte créé ! En attente de validation.");
+    rPrenom.value=rNom.value=rGrade.value=rPass.value="";
+    showPage(pageLogin);
+}
+
+
+// LOGIN
+btnLogin.onclick = async () => {
+    const prenom = lPrenom.value.trim();
+    const nom = lNom.value.trim();
+    const pass = lPass.value.trim();
+    if(!prenom || !nom || !pass) return alert("Veuillez remplir tout les champs !");
+
+    const id = prenom + "." + nom;
+    const docRef = doc(db,"agents",id);
+    const snap = await getDoc(docRef);
+    if(!snap.exists()) return alert("Vous n'avez pas de compte");
+    const data = snap.data();
+    if(data.pass !== pass) return alert("Une de vos informations est incorect");
+    if(!data.validated) return alert("Votre compte n'a pas encore été validé !");
+
+    // ✅ Définir l'utilisateur courant
+    currentUser = {...data, id};
+    checkAdmin();
+
+    // ✅ Vérifier si c'est un formateur
+    isTrainer = trainers.includes(currentUser.id); // <-- ligne à ajouter ici
+
+    // Affichage info agent
+    agentInfo.innerText = `${currentUser.prenom} ${currentUser.nom} - ${currentUser.grade}`;
+
+    // Navigation et chargement des données
+    showPage(homePage);
+    checkAdmin();
+    await initDispatch();
+    await initVacations();
+    initCSU();
+    loadWaiting();
+    loadVacations();
+    loadTrainers(); // <-- charger la liste des formateurs
+};
+
+
+
+// 🔹 Vérifie si currentUser est admin, formateur ou recruteur
+let isTrainerRole = false;
+let isRecruiterRole = false;
+
+function checkAdmin() {
+    if (!currentUser || homePage.style.display === "none") {
+        btnAdmin.style.display = "none";
+        isTrainerRole = false;
+        isRecruiterRole = false;
+        return;
+    }
+
+    // Reset
+    isTrainerRole = false;
+    isRecruiterRole = false;
+
+    if (admins.includes(currentUser.id)) {
+        btnAdmin.style.display = "block";
+        btnAdmin.innerText = "⚙️ Admin";
+    } else {
+        btnAdmin.style.display = "block";
+        // Rôles multiples possibles
+        if (trainers.includes(currentUser.id)) isTrainerRole = true;
+        if (recruiters.includes(currentUser.id)) isRecruiterRole = true;
+
+        if (isTrainerRole && isRecruiterRole) {
+            btnAdmin.innerText = "🎓 Formateur & 📝 Recruteur";
+        } else if (isTrainerRole) {
+            btnAdmin.innerText = "🎓 Formateur";
+        } else if (isRecruiterRole) {
+            btnAdmin.innerText = "📝 Recruteur";
+        } else {
+            btnAdmin.style.display = "none";
+        }
+    }
+}
+
+
+// Charger comptes non validés
+async function loadAdminAccounts() {
+    adminList.innerHTML = "";
+    const snap = await getDocs(collection(db, "agents"));
+    let count = 0;
+
+    snap.forEach(docu => {
+        const data = docu.data();
+
+        if (!data.validated) {
+
+            const div = document.createElement("div");
+            div.className = "agent";
+            div.style.display = "flex";
+            div.style.justifyContent = "space-between";
+            div.style.alignItems = "center";
+            div.style.background = "#1f2937";
+            div.style.padding = "10px";
+            div.style.borderRadius = "10px";
+            div.style.marginBottom = "8px"; // un peu d'espace entre les lignes
+
+            const span = document.createElement("span");
+            span.innerText = `${data.prenom} ${data.nom} - ${data.grade}`;
+            span.style.color = "#f3f4f6"; // texte clair pour contraste
+            span.style.fontWeight = "500";
+            div.appendChild(span);
+
+            const actions = document.createElement("div");
+
+            // ✅ BOUTON VALIDER
+            const btnValider = document.createElement("button");
+            btnValider.textContent = "✅ Valider";
+            Object.assign(btnValider.style, {
+                background: "#16a34a",
+                color: "white",
+                border: "none",
+                padding: "6px 12px",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontWeight: "600",
+                transition: "all 0.2s ease-in-out",
+            });
+            btnValider.onmouseover = () => btnValider.style.transform = "scale(1.05)";
+            btnValider.onmouseout = () => btnValider.style.transform = "scale(1)";
+            btnValider.onclick = async () => {
+                await updateDoc(doc(db, "agents", docu.id), { validated: true });
+                loadAdminAccounts();
+            };
+
+            // ❌ BOUTON REFUSER
+            const btnRefuser = document.createElement("button");
+            btnRefuser.textContent = "❌ Refuser";
+            Object.assign(btnRefuser.style, {
+                background: "#dc2626",
+                color: "white",
+                border: "none",
+                padding: "6px 12px",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontWeight: "600",
+                marginLeft: "8px",
+                transition: "all 0.2s ease-in-out",
+            });
+            btnRefuser.onmouseover = () => btnRefuser.style.transform = "scale(1.05)";
+            btnRefuser.onmouseout = () => btnRefuser.style.transform = "scale(1)";
+            btnRefuser.onclick = async () => {
+                if (confirm("Refuser ce compte ?")) {
+                    await deleteDoc(doc(db, "agents", docu.id));
+                    loadAdminAccounts();
+                }
+            };
+
+            actions.appendChild(btnValider);
+            actions.appendChild(btnRefuser);
+            div.appendChild(actions);
+
+            adminList.appendChild(div);
+            count++;
+        }
+    });
+
+    if (count === 0) {
+    const span = document.createElement("span");
+    span.innerText = "Aucun compte est en attente";
+    span.style.color = "#9ca3af";       // gris clair pour le texte
+    span.style.fontSize = "18px";       // un peu plus gros
+    span.style.fontWeight = "500";      // un peu plus visible
+    span.style.textAlign = "center";    // centré si tu veux
+    span.style.display = "block";       // pour que textAlign fonctionne
+    span.style.marginTop = "20px";      // espace au-dessus
+    adminList.appendChild(span);
+}
+}
+
+
+
+// INIT DISPATCH & VACATIONS
+async function initDispatch(){
+    const ref=doc(db,"dispatch","waiting");
+    const snap=await getDoc(ref);
+    if(!snap.exists()) await setDoc(ref,{agents:[]});
+}
+async function initVacations(){
+    const vacCol=collection(db,"vacations");
+    const snap=await getDocs(vacCol);
+    if(snap.empty){
+        const defaultVacations=[
+            {nom:"Victor 01",statut:"Disponible",agents:[],vehicules:["Aucun"]},
+            {nom:"Victor 02",statut:"Disponible",agents:[],vehicules:["Aucun"]},
+            {nom:"Victor 03",statut:"Disponible",agents:[],vehicules:["Aucun"]},
+            {nom:"GSI Alpha",statut:"Disponible",agents:[],vehicules:["Aucun"]},
+            {nom:"GSI Bravo",statut:"Disponible",agents:[],vehicules:["Aucun"]},
+            {nom:"BMU Alpha",statut:"Disponible",agents:[],vehicules:["Aucun"]},
+            {nom:"BMU Bravo",statut:"Disponible",agents:[],vehicules:["Aucun"]},
+        ];
+        for(let v of defaultVacations){
+            const id=v.nom.replace(/\s+/g,"_");
+            await setDoc(doc(db,"vacations",id),v);
+        }
+    }
+}
+
+// ATTENTE
+btnAttente.onclick=async()=>{
+    if(!currentUser || currentUser.inVacation) return alert("Vous êtes déjà dans une vacation !");
+    const ref=doc(db,"dispatch","waiting");
+    await updateDoc(ref,{agents:arrayUnion(currentUser)});
+    await updateDoc(doc(db,"agents",currentUser.id),{inWaiting:true});
+    currentUser.inWaiting=true;
+}
+btnQuitterAttente.onclick = async () => {
+    if(!currentUser) return;
+    const ref = doc(db,"dispatch","waiting");
+    const snap = await getDoc(ref);
+    const agents = snap.data()?.agents || [];
+    const newAgents = agents.filter(a => a.id !== currentUser.id);
+    await updateDoc(ref, { agents: newAgents });
+    await updateDoc(doc(db,"agents",currentUser.id), { inWaiting: false });
+    currentUser.inWaiting = false;
+};
+
+
+// CSU
+function initCSU(){
+    const csuRef=doc(db,"csu","current");
+    onSnapshot(csuRef,snap=>{
+        const data = snap.data()||{};
+        if(data.agent){
+            csuInfo.innerText=`${data.agent.prenom} ${data.agent.nom} ${data.agent.grade}`;
+            isCSU=(currentUser.id===data.agent.id);
+            joinCSU.style.display=isCSU? "none" : "none";
+            leaveCSU.style.display=isCSU? "block" : "none";
+        } else {
+            csuInfo.innerText="Aucun agent CSU";
+            isCSU=false;
+            joinCSU.style.display="block";
+            leaveCSU.style.display="none";
+        }
+        loadVacations();
+        loadWaiting();
+    });
+}
+joinCSU.onclick=async()=>{
+    const csuRef=doc(db,"csu","current");
+    const snap=await getDoc(csuRef);
+    if(snap.data()?.agent) return alert("Un agent est déjà CSU !");
+    await setDoc(csuRef,{agent:currentUser});
+}
+leaveCSU.onclick=async()=>{
+    const csuRef=doc(db,"csu","current");
+    await setDoc(csuRef,{agent:null});
+}
+
+// LOAD
+function loadWaiting() {
+    const waitingRef = doc(db, "dispatch", "waiting");
+
+    // --------------------------
+    // DROP dans waiting (depuis une vacation)
+    // --------------------------
+    waitingList.addEventListener("dragover", e => e.preventDefault());
+    waitingList.addEventListener("drop", async e => {
+        e.preventDefault();
+
+        let data;
+        try {
+            data = JSON.parse(e.dataTransfer.getData("text/plain"));
+        } catch {
+            return;
+        }
+
+        const agentObj = data.agent;
+
+        if (data.from === "waiting") return; // déjà en waiting
+
+        // 1️⃣ Ajouter l'ID de l'agent à waiting
+        const snapWaiting = await getDoc(waitingRef);
+        const agentsWaiting = snapWaiting.data()?.agents || [];
+        await updateDoc(waitingRef, { agents: [...agentsWaiting, agentObj] });
+
+        // 2️⃣ Mettre à jour l'agent
+        await updateDoc(doc(db, "agents", agentObj.id), { inVacation: null, inWaiting: true });
+
+        // 3️⃣ Retirer de la vacation si besoin
+        if (data.from) {
+            const fromRef = doc(db, "vacations", data.from);
+            const snapFrom = await getDoc(fromRef);
+            if (snapFrom.exists()) {
+                const agentsFrom = snapFrom.data()?.agents || [];
+                const newAgentsFrom = agentsFrom.filter(a => a.id !== agentObj.id);
+                await updateDoc(fromRef, { agents: newAgentsFrom });
+            }
+        }
+    });
+
+    // --------------------------
+    // Écoute des changements sur la waiting list
+    // --------------------------
+    onSnapshot(waitingRef, snap => {
+        waitingList.innerHTML = "";
+        const agentsInWaiting = snap.data()?.agents || [];
+
+        agentsInWaiting.forEach(a => {
+            const div = document.createElement("div");
+            div.className = "agent";
+            div.innerText = `${a.prenom} ${a.nom} - ${a.grade}`;
+
+            // On affiche les boutons seulement si isCSU
+            if (isCSU) {
+                // Bouton retirer
+                const btn = document.createElement("button");
+                btn.textContent = "❌ Retirer";
+                btn.className = "csu-button";
+                btn.onclick = async () => {
+                    // Retirer l'agent par ID
+                    const snap = await getDoc(waitingRef);
+                    const agents = snap.data()?.agents || [];
+                    const newAgents = agents.filter(agent => agent.id !== a.id);
+                    await updateDoc(waitingRef, { agents: newAgents });
+
+                    await updateDoc(doc(db, "agents", a.id), { inWaiting: false });
+                };
+                div.appendChild(btn);
+
+                // Drag depuis waiting
+                div.draggable = true;
+                div.addEventListener("dragstart", e => {
+                    e.dataTransfer.setData(
+                        "text/plain",
+                        JSON.stringify({ agent: a, from: "waiting" })
+                    );
+                    div.classList.add("dragging");
+                });
+                div.addEventListener("dragend", () => div.classList.remove("dragging"));
+            }
+
+            waitingList.appendChild(div);
+        });
+    });
+}
+
+function loadTrainers(){
+
+    const trainersDiv = document.getElementById("trainersList");
+
+    onSnapshot(collection(db,"agents"),snap=>{
+
+        let trainersArray = [];
+
+        snap.forEach(docu=>{
+
+            const data = docu.data();
+
+            if(
+    trainers.includes(docu.id) &&
+    data.validated &&
+    (
+        data.inVacation ||
+        data.inWaiting ||
+        data.isCSU === true
+    )
+){
+                let statut = "| 🟢 Disponible";
+
+                if(data.inVacation) statut = "| 🔴 En vacation";
+                else if(data.inWaiting) statut = "|🟠 En attente";
+
+                trainersArray.push({
+                    id: docu.id,
+                    prenom: data.prenom,
+                    nom: data.nom,
+                    grade: data.grade,
+                    statut: statut
+                });
+            }
+        });
+
+        // 🔥 TRI PAR GRADE (ton système existant)
+        trainersArray.sort(sortByGrade);
+
+        trainersDiv.innerHTML = "";
+
+        trainersArray.forEach(a=>{
+            const div=document.createElement("div");
+            div.className="agent";
+            div.innerText=`${a.prenom} ${a.nom} - ${a.grade} ${a.statut}`;
+            trainersDiv.appendChild(div);
+        });
+
+    });
+}
+
+
+function colorStatut(select){
+    if(select.value === "Disponible"){
+        select.style.backgroundColor = "#2ecc71"; // vert
+        select.style.color = "white";
+    }
+    else if(select.value === "En intervention"){
+        select.style.backgroundColor = "#f39c12"; // orange
+        select.style.color = "white";
+    }
+    else if(select.value === "Indisponible"){
+        select.style.backgroundColor = "#e74c3c"; // rouge
+        select.style.color = "white";
+    }
+    
+}
+
+
+function loadVacations(){
+    const vacCol=collection(db,"vacations");
+    onSnapshot(vacCol,snap=>{
+        vacationsDiv.innerHTML="";
+        // Ordre voulu : Victor -> GSI -> BMU
+        const docs = snap.docs.sort((a, b) => {
+    const order = [
+        "Victor 01", "Victor 02", "Victor 03",
+        "GSI Alpha", "GSI Bravo",
+        "BMU Alpha", "BMU Bravo"
+    ];
+
+    const aData = a.data();
+    const bData = b.data();
+
+    const aHasAgents = (aData.agents || []).length > 0 ? 0 : 1;
+    const bHasAgents = (bData.agents || []).length > 0 ? 0 : 1;
+
+    // 1️⃣ Priorité aux vacations avec agents
+    if(aHasAgents !== bHasAgents) return aHasAgents - bHasAgents;
+
+    // 2️⃣ Priorité selon l'ordre fixe
+    const aIndex = order.indexOf(aData.nom);
+    const bIndex = order.indexOf(bData.nom);
+
+    if(aIndex === -1 && bIndex === -1) return 0;
+    if(aIndex === -1) return 1;
+    if(bIndex === -1) return -1;
+
+    return aIndex - bIndex;
+});
+
+
+        docs.forEach(docu=>{
+            const v = docu.data();
+            const div = document.createElement("div");
+            div.className="card";
+            const title = document.createElement("h3");
+            title.textContent=v.nom;
+            div.appendChild(title);
+            // STATUT
+            const selectStat = document.createElement("select");
+            ["Disponible","En intervention","Indisponible"].forEach(s=>{
+                const opt=document.createElement("option");
+                opt.value=s; opt.textContent=s;
+                if(v.statut===s) opt.selected=true;
+                selectStat.appendChild(opt);
+            });
+            selectStat.disabled=!(isCSU || (v.agents||[]).some(a=>a.id===currentUser.id));
+            colorStatut(selectStat);
+            selectStat.onchange=async()=>{
+            colorStatut(selectStat);
+            await updateDoc(doc(db,"vacations",docu.id),{statut:selectStat.value});
+            };
+
+            div.appendChild(selectStat);
+
+            // VEHICULE
+let vehicles = ["Aucun","Enyoq","Cinq C SW","Mégane","Kangoo","Tucson","Zoé"]; // liste complète par défaut
+
+// ⚡ appliquer règles selon type de vacation
+if(v.nom.startsWith("Victor")) {
+    vehicles = vehicles.filter(vh => vh !== "Cinq C SW"); // tout sauf Cinq C SW
+} else if(v.nom.startsWith("GSI")) {
+    vehicles = ["Aucun","Mégane","Cinq C SW"]; // seulement ces deux
+}
+
+const selVeh = document.createElement("select");
+vehicles.forEach(vh => {
+    const opt = document.createElement("option");
+    opt.value = vh;
+    opt.textContent = vh;
+    if((v.vehicules||["Aucun"]).includes(vh)) opt.selected = true;
+    selVeh.appendChild(opt);
+});
+
+selVeh.disabled = !(isCSU || (v.agents||[]).some(a => a.id === currentUser.id));
+
+selVeh.onchange = async () => {
+    await updateDoc(doc(db,"vacations",docu.id), {vehicules:[selVeh.value]});
+};
+
+div.appendChild(selVeh);
+
+
+            // BOUTONS REJOINDRE / QUITTER
+            const joinBtn=document.createElement("button");
+            joinBtn.textContent="Rejoindre"; joinBtn.onclick=()=>rejoindreVacation(docu.id);
+            const leaveBtn=document.createElement("button");
+            leaveBtn.textContent="Quitter"; leaveBtn.onclick=()=>quitterVacation(docu.id);
+            div.appendChild(joinBtn); div.appendChild(leaveBtn);
+
+            // AGENTS
+            const agentDiv=document.createElement("div");
+            agentDiv.className="agents-container";
+            // Trie les agents de la vacation par grade
+            const sortedAgents = (v.agents || []).sort(sortByGrade);
+            sortedAgents.forEach(a => {
+                const ag = document.createElement("div");
+                ag.className = "agent";
+                ag.innerText = `${a.prenom} ${a.nom} - ${a.grade}`;
+                ag.draggable = isCSU;
+    
+                if (isCSU) {
+                    const btn = document.createElement("button");
+                    btn.textContent = "❌ Retirer";
+                    btn.className = "csu-button";
+                    btn.onclick = async () => {
+                        await updateDoc(doc(db,"vacations",docu.id), { agents: arrayRemove(a) });
+                        await updateDoc(doc(db,"agents",a.id), { inVacation: null });
+                    };
+                    ag.appendChild(btn);
+
+                    // Drag & drop
+                    ag.addEventListener("dragstart", e => {
+                        e.dataTransfer.setData("text/plain", JSON.stringify({ agent: a, from: docu.id }));
+                        ag.classList.add("dragging");
+                    });
+                    ag.addEventListener("dragend", () => ag.classList.remove("dragging"));
+                }
+
+                agentDiv.appendChild(ag);
+        });
+
+            div.addEventListener("dragover", e => e.preventDefault()); // obligatoire pour drop
+div.addEventListener("drop", async e => {
+    e.preventDefault(); 
+    if(!isCSU) return;
+
+    const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+    const agentObj = data.agent;
+    const toRef = doc(db, "vacations", docu.id);
+
+    if(data.from === docu.id) return; // même vacation, rien à faire
+
+    if(data.from === "waiting") {
+    const waitingRef = doc(db, "dispatch", "waiting");
+    await updateDoc(toRef, { agents: arrayUnion(agentObj.id) });
+    await updateDoc(waitingRef, { agents: arrayRemove(agentObj.id) });
+    await updateDoc(doc(db, "agents", agentObj.id), { inWaiting: false, inVacation: docu.id });
+} else {
+    const fromRef = doc(db, "vacations", data.from);
+    await updateDoc(toRef, { agents: arrayUnion(agentObj) });
+    await updateDoc(fromRef, { agents: arrayRemove(agentObj) });
+    await updateDoc(doc(db, "agents", agentObj.id), { inVacation: docu.id });
+}
+
+});
+
+
+            div.appendChild(agentDiv);
+            vacationsDiv.appendChild(div);
+        });
+    });
+}
+
+// REJOINDRE / QUITTER VACATION
+async function rejoindreVacation(id){
+    if(!currentUser) return;
+
+    // Si l'agent est déjà dans une vacation
+    if(currentUser.inVacation) return alert("Vous êtes déjà dans une vacation !");
+
+    // Si l'agent est en attente, le retirer de la liste d'attente
+    if(currentUser.inWaiting){
+    const ref = doc(db, "dispatch", "waiting");
+    
+    // Récupère les agents en attente
+    const snap = await getDoc(ref);
+    const waitingAgents = snap.data()?.agents || [];
+
+    // Retire uniquement l'agent avec le même id
+    const newWaitingAgents = waitingAgents.filter(a => a.id !== currentUser.id);
+
+    // Met à jour la liste
+    await updateDoc(ref, { agents: newWaitingAgents });
+
+    // Mets à jour l'état local
+    await updateDoc(doc(db,"agents",currentUser.id), { inWaiting: false });
+    currentUser.inWaiting = false;
+}
+
+
+    // Rejoindre la vacation
+    await updateDoc(doc(db,"vacations",id), { agents: arrayUnion(currentUser) });
+    await updateDoc(doc(db,"agents",currentUser.id), { inVacation: id });
+    currentUser.inVacation = id;
+} 
+
+async function quitterVacation(id){
+    if(!currentUser) return;
+
+    const vacRef = doc(db,"vacations",id);
+    const snapVac = await getDoc(vacRef);
+    const agents = snapVac.data()?.agents || [];
+
+    // Retirer l'agent par ID
+    const newAgents = agents.filter(a => a.id !== currentUser.id);
+    await updateDoc(vacRef, { agents: newAgents });
+
+    await updateDoc(doc(db,"agents",currentUser.id), { inVacation: null });
+    currentUser.inVacation = null;
+
+    // Reset véhicule si la vacation est vide
+    if(newAgents.length === 0){
+        const vehicules = snapVac.data().vehicules || [];
+        for(let v of vehicules){
+            if(v !== "Aucun"){ 
+                await updateDoc(vacRef, { vehicules: ["Aucun"], statut: "Indisponible" });
+            }
+        }
+    }
+}
+
+
+
+
+async function openMDT(){
+    if(!currentUser) return alert("Vous devez être connecté !");
+
+    showPage(pageMDT);        // Affiche le MDT
+    checkAdmin();             // Montre le bouton admin si c'est un admin
+    await initDispatch();     // Initialise dispatch si nécessaire
+    await initVacations();    // Initialise vacations si nécessaire
+    initCSU();                // Initialise le CSU
+    loadWaiting();            // Recharge la liste d'attente
+    loadVacations();          // Recharge les vacations
+}
+
+// ===== POINTEUSE =====
+const pagePointeuse = document.getElementById("pagePointeuse");
+const pointeuseInfo = document.getElementById("pointeuseInfo");
+const pointeuseHistory = document.getElementById("pointeuseHistory");
+const btnStartShift = document.getElementById("btnStartShift");
+const btnEndShift = document.getElementById("btnEndShift");
+
+// Ouvrir la pointeuse depuis l'accueil
+document.getElementById("btnPointeuse").onclick = () => {
+    showPage(pagePointeuse);
+    loadPointeuse();
+};
+
+// Charger historique et total heures
+function formatDateFR(dateStr) {
+    if (!dateStr) return "-";
+    const date = new Date(dateStr);
+    return date.toLocaleString("fr-FR", { 
+        year: "numeric", month: "2-digit", day: "2-digit", 
+        hour: "2-digit", minute: "2-digit" 
+    });
+}
+
+// --- Charger historique et total heures ---
+async function loadPointeuse() {
+    if (!currentUser) return;
+
+    try {
+        const docRef = doc(db, "agents", currentUser.id);
+        const snap = await getDoc(docRef);
+        if (!snap.exists()) return;
+
+        const data = snap.data();
+        const history = data.pointeuse || [];
+
+        // --- Calcul du total ---
+        let totalMs = history.reduce((acc, entry) => {
+            if (entry.arrivee && entry.depart) {
+                return acc + (new Date(entry.depart) - new Date(entry.arrivee));
+            }
+            return acc;
+        }, 0);
+
+        const heures = Math.floor(totalMs / 1000 / 60 / 60);
+        const minutes = Math.floor((totalMs / 1000 / 60) % 60);
+        pointeuseInfo.innerText = `Total travaillé : ${heures}h ${minutes}m`;
+
+        // --- Historique ---
+        pointeuseHistory.innerHTML = "";
+        history.forEach(entry => {
+            const div = document.createElement("div");
+            div.classList.add("pointeuse-entry"); // pour style CSS si besoin
+            div.innerText = `Arrivée : ${formatDateFR(entry.arrivee)} | Départ : ${formatDateFR(entry.depart)}`;
+            pointeuseHistory.appendChild(div);
+        });
+
+        // --- Boutons ---
+        const enService = history.length && !history[history.length-1].depart;
+        btnStartShift.disabled = enService;
+        btnEndShift.disabled = !enService;
+
+    } catch (error) {
+        console.error("Erreur lors du chargement de la pointeuse:", error);
+        alert("Impossible de charger vos heures pour le moment.");
+    }
+}
+
+// --- Début de service ---
+btnStartShift.onclick = async () => {
+    if (!currentUser) return;
+
+    try {
+        const now = new Date().toISOString();
+        const docRef = doc(db, "agents", currentUser.id);
+        await updateDoc(docRef, { pointeuse: arrayUnion({ arrivee: now, depart: null }) });
+        loadPointeuse();
+    } catch (error) {
+        console.error("Erreur au début du service:", error);
+        alert("Impossible de démarrer votre service !");
+    }
+};
+
+// --- Fin de service ---
+btnEndShift.onclick = async () => {
+    if (!currentUser) return;
+
+    try {
+        const docRef = doc(db, "agents", currentUser.id);
+        const snap = await getDoc(docRef);
+        const history = snap.data().pointeuse || [];
+
+        if (!history.length) return alert("Aucun début de service trouvé !");
+        const last = history[history.length - 1];
+
+        if (last.depart) return alert("Vous n'êtes pas en service !");
+        
+        // Met à jour le dernier enregistrement
+        history[history.length - 1] = { ...last, depart: new Date().toISOString() };
+        await updateDoc(docRef, { pointeuse: history });
+
+        loadPointeuse();
+    } catch (error) {
+        console.error("Erreur à la fin du service:", error);
+        alert("Impossible de terminer votre service !");
+    }
+};
+
+btnAdmin.onclick = () => {
+    showPage(adminHome);
+
+    // 🔹 Gestion affichage
+    btnManageAccounts.style.display =
+        isRecruiterRole || admins.includes(currentUser.id) ? "block" : "none";
+
+    btnTotalHours.style.display =
+        admins.includes(currentUser.id) ? "block" : "none";
+
+    btnAllAgents.style.display =
+        isTrainerRole || admins.includes(currentUser.id) ? "block" : "none";
+
+    // 🔹 CHANGER LES NOMS DES CARTES
+
+    if (isRecruiterRole && !admins.includes(currentUser.id)) {
+        btnManageAccounts.querySelector("h3").textContent = "Comptes";
+        btnManageAccounts.querySelector("p").textContent = "Gérer les comptes en attente";
+    }
+
+    if (isTrainerRole && !admins.includes(currentUser.id)) {
+        btnAllAgents.querySelector("h3").textContent = "Tout les agents";
+        btnAllAgents.querySelector("p").textContent = "Voir et modifier les formations";
+    }
+
+    if (admins.includes(currentUser.id)) {
+        btnManageAccounts.querySelector("h3").textContent = "Comptes";
+        btnManageAccounts.querySelector("p").textContent = "Gérer les comptes en attente";
+
+        btnAllAgents.querySelector("h3").textContent = "Tous les agents";
+        btnAllAgents.querySelector("p").textContent = "Voir et modifier sanctions / formations";
+    }
+};
+
+
+document.getElementById("btnBackToHome").onclick = () => {
+    showPage(homePage);
+    checkAdmin();
+};
+
+document.getElementById("btnManageAccounts").onclick = () => {
+    showPage(pageAdmin);
+    loadAdminAccounts();
+};
+
+btnBackAdmin.onclick = () => {
+    showPage(adminHome);
+};
+
+document.getElementById("btnTotalHours").onclick = () => {
+    showPage(pageTotalHours);
+    loadTotalHours();
+};
+
+btnBackAdminHome.onclick = () => {
+    showPage(adminHome);
+};
+
+document.getElementById("btnAllAgents").onclick = () => {
+    showPage(pageAllAgents);
+    loadAllAgents();
+};
+
+document.getElementById("btnBackAllAgents").onclick = () => {
+    showPage(adminHome);
+};
+
+btnBackAgentDetail.onclick = () => {
+    showPage(pageAllAgents);
+};
+
+
+let currentSort = "hours"; // par défaut : tri par heures
+
+// ⚡ Ajouter l'événement au bouton existant
+const sortButton = document.getElementById("sortButton");
+sortButton.onclick = (e) => {
+    e.preventDefault(); // ❌ empêche le reload ou flash
+    currentSort = currentSort === "hours" ? "grade" : "hours";
+    sortButton.innerText = currentSort === "hours" ? "📶 Trier par grade" : "⏱ Trier par heures";
+    loadTotalHours();
+};
+
+
+async function loadTotalHours() {
+    totalHoursList.innerHTML = "";
+
+    const snap = await getDocs(collection(db, "agents"));
+    const agentsArray = [];
+
+    snap.forEach(docu => {
+        const data = docu.data();
+        const history = data.pointeuse || [];
+
+        let totalMs = 0;
+        history.forEach(entry => {
+            if (entry.arrivee && entry.depart) {
+                totalMs += new Date(entry.depart) - new Date(entry.arrivee);
+            }
+        });
+
+        agentsArray.push({
+            id: docu.id,
+            data,
+            history,
+            totalMs
+        });
+    });
+
+    // 🔹 TRI selon le critère actuel
+    if (currentSort === "hours") {
+        agentsArray.sort((a, b) => b.totalMs - a.totalMs);
+    } else if (currentSort === "grade") {
+        agentsArray.sort((a, b) => sortByGrade(a.data, b.data));
+    }
+
+    // 🔹 AFFICHAGE APRÈS TRI
+    agentsArray.forEach(agent => {
+        const { data, history, totalMs, id } = agent;
+        const heures = Math.floor(totalMs / 1000 / 60 / 60);
+        const minutes = Math.floor((totalMs / 1000 / 60) % 60);
+
+        const div = document.createElement("div");
+        div.className = "agent";
+        div.style.cursor = "pointer";
+        div.style.padding = "10px";
+        div.style.background = "#1f2937";
+        div.style.borderRadius = "8px";
+        div.style.marginBottom = "10px";
+        div.innerText = `${data.prenom} ${data.nom} - ${data.grade} | ${heures}h ${minutes}m`;
+
+        div.onclick = async () => {
+            const oldPopup = document.getElementById("adminPointeusePopup");
+            if (oldPopup) oldPopup.remove();
+
+            const popup = document.createElement("div");
+            popup.id = "adminPointeusePopup";
+            popup.style.position = "fixed";
+            popup.style.top = "50%";
+            popup.style.left = "50%";
+            popup.style.transform = "translate(-50%, -50%)";
+            popup.style.width = "350px";
+            popup.style.maxHeight = "400px";
+            popup.style.overflowY = "auto";
+            popup.style.background = "#1f2937";
+            popup.style.padding = "20px";
+            popup.style.borderRadius = "10px";
+            popup.style.boxShadow = "0 0 15px rgba(0,0,0,0.5)";
+            popup.style.zIndex = 2000;
+            popup.style.color = "white";
+
+            const closeBtn = document.createElement("span");
+            closeBtn.innerText = "✖";
+            closeBtn.style.cursor = "pointer";
+            closeBtn.style.float = "right";
+            closeBtn.style.fontWeight = "bold";
+            closeBtn.onclick = () => popup.remove();
+            popup.appendChild(closeBtn);
+
+            const title = document.createElement("h4");
+            title.innerText = `Pointeuse de ${data.prenom} ${data.nom}`;
+            title.style.marginTop = "0";
+            popup.appendChild(title);
+
+            history.forEach((entry, index) => {
+                const arrivee = entry.arrivee ? new Date(entry.arrivee).toLocaleString("fr-FR") : "-";
+                const depart = entry.depart ? new Date(entry.depart).toLocaleString("fr-FR") : "-";
+
+                const entryDiv = document.createElement("div");
+                entryDiv.style.display = "flex";
+                entryDiv.style.justifyContent = "space-between";
+                entryDiv.style.alignItems = "center";
+                entryDiv.style.marginTop = "10px";
+                entryDiv.innerText = `Arrivée : ${arrivee} | Départ : ${depart}`;
+
+                if (!entry.depart) {
+                    const stopBtn = document.createElement("button");
+                    stopBtn.textContent = "🔴 Terminer le service";
+                    stopBtn.style.marginLeft = "10px";
+                    stopBtn.onclick = async () => {
+                        history[index] = { ...entry, depart: new Date().toISOString() };
+                        await updateDoc(doc(db, "agents", id), { pointeuse: history });
+                        alert("Service terminé !");
+                        popup.remove();
+                        loadTotalHours();
+                    };
+                    entryDiv.appendChild(stopBtn);
+                }
+
+                popup.appendChild(entryDiv);
+            });
+
+            document.body.appendChild(popup);
+        };
+
+        totalHoursList.appendChild(div);
+    });
+}
+
+
+
+
+const btnResetHours = document.getElementById("btnResetHours");
+
+btnResetHours.onclick = async () => {
+    if(!confirm("Voulez-vous vraiment réinitialiser les heures de tous les agents ?")) return;
+
+    const snap = await getDocs(collection(db,"agents"));
+
+    for(const docu of snap.docs){
+        await updateDoc(doc(db,"agents",docu.id), { pointeuse: [] });
+    }
+
+    loadTotalHours(); // recharge la page pour afficher tout vide
+};
+
+
+document.getElementById("btnBackHomeFromMDT").onclick = () => {
+    showPage(homePage);
+    checkAdmin(); // pour remettre le bouton admin si nécessaire
+};
+
+document.getElementById("btnBackHomeFromPointeuse").onclick = () => {
+    showPage(homePage);
+    checkAdmin(); // pour remettre le bouton admin si l’utilisateur est admin
+};
+
+
+async function loadAllAgents(){
+    const list = document.getElementById("allAgentsList");
+    list.innerHTML = "";
+
+    const snap = await getDocs(collection(db, "agents"));
+
+    if(snap.empty){
+        const span = document.createElement("span");
+        span.innerText = "Aucun agent trouvé.";
+        list.appendChild(span);
+        return;
+    }
+
+    // Stocke tous les agents dans un tableau
+    const agents = snap.docs.map(docu => ({ id: docu.id, ...docu.data() }));
+
+    // Trie par grade
+    agents.sort(sortByGrade);
+
+    // Affiche les agents triés
+    agents.forEach(data => {
+        const div = document.createElement("div");
+        div.className = "agent";
+        div.style.cursor = "pointer";
+        div.style.padding = "10px";
+        div.style.background = "#1f2937";
+        div.style.borderRadius = "8px";
+        div.innerText = `${data.prenom} ${data.nom} - ${data.grade}`;
+
+        div.onclick = () => openAgentDetail(data.id, data);
+
+        list.appendChild(div);
+    });
+}
+
+
+async function openAgentDetail(id) { // async ajouté, plus besoin de paramètre data
+    // ⚡ Récupérer les données à jour depuis Firestore
+    const docSnap = await getDoc(doc(db, "agents", id));
+    if (!docSnap.exists()) return alert("Agent introuvable");
+    const data = docSnap.data();
+    data.id = id; // utile pour updateDoc plus tard
+    const isTrainerRole = currentUser && trainers.includes(currentUser.id);
+
+
+    showPage(pageAgentDetail);
+
+    const formattedDate = data.arrivalDate
+        ? new Date(data.arrivalDate).toLocaleDateString("fr-FR", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        })
+        : "Non renseignée";
+
+    // Sanctions existantes
+    let sanctions = data.sanctions || [];
+    let notes = data.notes || [];
+
+    function renderNotes() {
+  if (!notes.length) return `<p>Aucune note</p>`;
+
+  return `
+    <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+      ${notes.map((n, index) => `
+        <div style="background:#111827; padding:8px; border-radius:6px; display:flex; justify-content:space-between;">
+          <span>${n.texte} <small style="color:#9ca3af;">(${n.date})</small></span>
+          <button onclick="removeNote(${index})"
+            style="background:#dc2626; color:white; border:none; padding:4px 6px; border-radius:4px; cursor:pointer;">
+            🗑️
+          </button>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+
+
+
+      // ⚡ Fonction pour supprimer une sanction
+window.removeSanction = async (index) => {
+    sanctions.splice(index, 1); // supprime la sanction du tableau
+    await updateDoc(doc(db, "agents", data.id), { sanctions }); // met à jour Firestore
+    document.getElementById("sanctionsList").innerHTML = renderSanctions(); // rafraîchit l'affichage
+    document.getElementById("sanctionsList").appendChild(sanctionDiv);
+};
+
+
+    // ⚡ Fonction pour afficher les sanctions (déjà existante)
+    function renderSanctions() {
+    if (!sanctions.length) return `<p>Aucune sanction</p>`;
+
+    return `
+    <div style="margin-top:10px; overflow-x:auto;">
+      <table style="width:100%; border-collapse: collapse; text-align:left; background:#111827; color:white; border-radius:8px; overflow:hidden;">
+        <thead style="background:#1f2937;">
+          <tr>
+            <th style="padding:8px 12px;">Type</th>
+            <th style="padding:8px 12px;">Raison</th>
+            <th style="padding:8px 12px;">Date</th>
+            <th style="padding:8px 12px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sanctions.map((s, index) => `
+            <tr style="border-bottom: 1px solid #333;">
+              <td style="padding:8px 12px;">${s.type}</td>
+              <td style="padding:8px 12px;">${s.raison}</td>
+              <td style="padding:8px 12px; color:#f87171;">${s.date || ''}</td>
+              <td style="padding:8px 12px;">
+                <button onclick="removeSanction(${index})"
+                  style="background:#dc2626; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    `;
+}
+
+
+
+    // ⚡ Ici on met le code formations
+    function renderFormations() {
+
+    const formations = data.formations || [];
+
+    const formationsPossibles = [
+        "Call Radio",
+        "PPA Théorique",
+        "Formation Finale",
+        "PPA Pratique",
+        "APJA"
+    ];
+
+    return `
+<div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+    ${formationsPossibles.map(f => {
+        const found = formations.find(x => x.nom === f);
+
+        return `
+        <div class="formation-row" 
+             style="display:flex; justify-content:space-between; align-items:center; padding:6px 10px; background:#111827; border-radius:8px;">
+
+            <span>
+                ${f}
+                ${found ? `<small style="color:#16a34a; margin-left:8px;">(${found.date})</small>` : ""}
+            </span>
+
+            <label class="switch" style="transform: scale(1.5);"> <!-- agrandi le switch -->
+                <input type="checkbox"
+                       ${found ? "checked" : ""}
+                       onchange="toggleFormation('${f}')">
+                <span class="slider"></span>
+            </label>
+        </div>
+        `;
+    }).join("")}
+</div>
+`;
+}
+
+
+
+
+window.toggleFormation = async (formation) => {
+    let formations = data.formations || [];
+
+    const today = new Date().toLocaleDateString("fr-FR");
+
+    const index = formations.findIndex(f => f.nom === formation);
+
+    if (index !== -1) {
+        formations.splice(index, 1);
+    } else {
+        formations.push({
+            nom: formation,
+            date: today
+        });
+    }
+
+    data.formations = formations;
+
+    await updateDoc(doc(db, "agents", data.id), { formations });
+
+    document.getElementById("FormationsList").innerHTML = renderFormations();
+};
+
+
+window.removeNote = async (index) => {
+  notes.splice(index, 1);
+  await updateDoc(doc(db, "agents", data.id), { notes });
+  document.getElementById("notesItems").innerHTML = renderNotes();
+};
+
+
+window.addNote = async () => {
+  const input = document.getElementById("noteInput");
+  const texte = input.value.trim();
+
+  if (!texte) return alert("Écris une note");
+
+  const today = new Date().toLocaleDateString("fr-FR");
+
+  notes.push({
+    texte,
+    date: today
+  });
+
+  await updateDoc(doc(db, "agents", data.id), { notes });
+
+  document.getElementById("notesItems").innerHTML = renderNotes();
+  input.value = "";
+};
+
+
+
+    // ⚡ Contenu HTML
+    agentDetailContent.innerHTML = `
+  <div class="card card-blue">
+    <h3>${data.prenom} ${data.nom}</h3>
+
+     ${currentUser && admins.includes(currentUser.id) ? `
+      <button id="deleteAgentBtn"
+              style="
+                position:absolute;
+                top:10px;
+                right:10px;
+                background:#dc2626;
+                color:white;
+                border:none;
+                padding:4px 8px;
+                border-radius:5px;
+                cursor:pointer;
+              ">
+        🗑️
+      </button>` : ``}
+
+    <div style="display:flex; align-items:center; gap:5px;"> 
+  <strong>Grade :</strong>
+  <span id="gradeText">${data.grade}</span>
+
+  ${!isTrainerRole ? `
+  <div style="position:relative; display:inline-block; margin-left:5px;">
+    <button id="gradeMenuBtn"
+      style="
+        background:none;
+        border:none;
+        cursor:pointer;
+        font-weight:bold;
+        padding:0;
+        line-height:1;
+      ">
+      …
+    </button>
+
+    <div id="gradeMenu" style="
+        display:none;
+        position:absolute;
+        top:100%;   
+        right:0;    
+        background:#111827;
+        color:white;
+        border:1px solid #333;
+        padding:8px;
+        border-radius:6px;
+        z-index:1000;
+        width:220px;
+        margin-top:4px;
+    ">
+      <select id="gradeSelect" style="width:100%;">
+        ${gradeOrder.map(g => `<option value="${g}" ${g === data.grade ? "selected" : ""}>${g}</option>`).join('')}
+      </select>
+      <button id="gradeSaveBtn" style="
+          margin-top:5px;
+          background:#16a34a; 
+          color:white; 
+          border:none; 
+          padding:4px 8px; 
+          border-radius:4px; 
+          cursor:pointer;
+          width:100%;
+        ">
+        Valider
+      </button>
+    </div>
+  </div>
+  ` : ``}
+</div>
+
+
+${currentUser && admins.includes(currentUser.id) ? `
+<!-- CHECKBOX ADMIN -->
+<div style="margin-top:10px; border-top:1px solid #333; padding-top:8px;">
+  <strong>Rôle :</strong>
+  <label style="display:inline-block; margin-left:10px; margin-right:15px;">
+    <input type="checkbox" id="roleFormateur" ${data.formateur ? 'checked' : ''} />
+    Formateur
+  </label>
+  <label style="display:inline-block;">
+    <input type="checkbox" id="roleRecruteur" ${data.recruteur ? 'checked' : ''} />
+    Recruteur
+  </label>
+</div>
+` : ``}
+
+
+
+<p><strong>Date arrivée :</strong> ${formattedDate}</p>
+
+    <hr style="border:none; height:3px; background:#555; margin:10px 0;">
+
+    <!-- Onglets -->
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
+  <button id="tabFormations">Formations</button>
+
+  ${!isTrainerRole ? `
+    <button id="tabSanctions">Sanctions</button>
+    <button id="tabNotes">Notes</button>
+    <button id="tabGradeHistory">Historique Grades</button>
+  ` : ``}
+</div>
+
+
+
+    <!-- Contenus -->
+<div id="tabContent">
+
+  <div id="FormationsList">
+    ${renderFormations()}
+  </div>
+
+  <div id="sanctionsList" style="display:none;">
+    <div id="sanctionsItems">${renderSanctions()}</div>
+    <div id="sanctionFormContainer"></div>
+  </div>
+
+  <div id="notesList" style="display:none;">
+  <div id="notesItems">${renderNotes()}</div>
+
+  <div style="display:flex; gap:10px; margin-top:10px;">
+    <input id="noteInput" placeholder="Ajouter une note..."
+      style="flex:1; padding:6px; border-radius:6px; border:none;">
+
+    <button id="addNoteBtn"
+      style="background:#2563eb; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer;">
+      Ajouter
+    </button>
+  </div>
+</div>
+<div id="gradeHistoryList" style="display:none;"></div>
+</div>
+</div>
+`;
+
+document.getElementById("gradeHistoryList").innerHTML = renderGradeHistory();
+
+
+document.getElementById("tabFormations").onclick = () => {
+  FormationsList.style.display = "block";
+  sanctionsList.style.display = "none";
+  notesList.style.display = "none";
+  gradeHistoryList.style.display = "none";
+};
+
+document.getElementById("tabSanctions").onclick = () => {
+  FormationsList.style.display = "none";
+  sanctionsList.style.display = "block";
+  notesList.style.display = "none";
+  gradeHistoryList.style.display = "none";
+};
+
+document.getElementById("tabNotes").onclick = () => {
+  FormationsList.style.display = "none";
+  sanctionsList.style.display = "none";
+  notesList.style.display = "block";
+  gradeHistoryList.style.display = "none";
+};
+
+document.getElementById("tabGradeHistory").onclick = () => {
+  FormationsList.style.display = "none";
+  sanctionsList.style.display = "none";
+  notesList.style.display = "none";
+  gradeHistoryList.style.display = "block";
+  gradeHistoryList.innerHTML = renderGradeHistory();
+};
+
+
+const formateurCheck = document.getElementById("roleFormateur");
+const recruteurCheck = document.getElementById("roleRecruteur");
+
+if (currentUser && admins.includes(currentUser.id)) {
+    // Admin connecté → peut cocher/décocher
+    formateurCheck.disabled = false;
+    recruteurCheck.disabled = false;
+
+    formateurCheck.onchange = async (e) => {
+        const value = e.target.checked;
+        await updateDoc(doc(db, "agents", data.id), { formateur: value });
+        data.formateur = value;
+    };
+
+    recruteurCheck.onchange = async (e) => {
+        const value = e.target.checked;
+        await updateDoc(doc(db, "agents", data.id), { recruteur: value });
+        data.recruteur = value;
+    };
+} else {
+    // Pas admin → désactivé
+    formateurCheck.disabled = true;
+    recruteurCheck.disabled = true;
+}
+
+
+
+
+
+
+
+
+
+const deleteBtn = document.getElementById("deleteAgentBtn");
+if (deleteBtn) {
+    deleteBtn.onclick = async () => {
+        const confirmDelete = confirm(`Voulez-vous vraiment supprimer ${data.prenom} ${data.nom} ?`);
+        if (!confirmDelete) return;
+
+        try {
+            await deleteDoc(doc(db, "agents", data.id));
+            alert("Agent supprimé !");
+            showPage(adminHome);
+            loadAllAgents(); // rafraîchir la liste si tu as une fonction existante
+        } catch (err) {
+            console.error(err);
+            alert("Erreur lors de la suppression.");
+        }
+    };
+}
+
+
+const gradeBtn = document.getElementById("gradeMenuBtn");
+const gradeMenu = document.getElementById("gradeMenu");
+const gradeSelect = document.getElementById("gradeSelect");
+const gradeText = document.getElementById("gradeText");
+const gradeSave = document.getElementById("gradeSaveBtn");
+
+// Afficher / cacher le menu
+gradeBtn.onclick = (e) => {
+    e.stopPropagation(); // empêche la fermeture instantanée
+    gradeMenu.style.display = gradeMenu.style.display === "block" ? "none" : "block";
+};
+
+// Fermer le menu si clic à l’extérieur
+document.addEventListener("click", (e) => {
+    if (!gradeMenu.contains(e.target) && e.target !== gradeBtn) {
+        gradeMenu.style.display = "none";
+    }
+});
+
+// Sauvegarder le grade
+gradeSave.onclick = async () => {
+    const newGrade = gradeSelect.value;
+    const oldGrade = data.grade;
+
+    if (newGrade === oldGrade) return;
+
+    const today = new Date().toLocaleDateString("fr-FR");
+
+    const newHistoryEntry = {
+        oldGrade: oldGrade,
+        newGrade: newGrade,
+        date: today
+    };
+
+    const gradeHistory = data.gradeHistory || [];
+    gradeHistory.push(newHistoryEntry);
+
+    gradeText.textContent = newGrade;
+    gradeMenu.style.display = "none";
+
+    await updateDoc(doc(db, "agents", data.id), {
+        grade: newGrade,
+        gradeHistory: gradeHistory
+    });
+
+    data.grade = newGrade;
+    data.gradeHistory = gradeHistory;
+
+    alert("Grade mis à jour !");
+};
+
+
+
+
+
+    // ⚡ Ajouter une nouvelle sanction
+    const sanctionDiv = document.createElement("div");
+    sanctionDiv.style.display = "flex";
+    sanctionDiv.style.gap = "10px";
+    sanctionDiv.style.marginTop = "10px";
+
+    const typeSelect = document.createElement("select");
+    ["Avertissement oral", "Avertissement écrit", "Blâme", "Mise à pied", "Licenciement"].forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t;
+        opt.textContent = t;
+        typeSelect.appendChild(opt);
+    });
+
+    const reasonInput = document.createElement("input");
+    reasonInput.placeholder = "Raison";
+    reasonInput.style.flex = "1";
+
+    const btnAdd = document.createElement("button");
+    btnAdd.textContent = "Ajouter";
+    btnAdd.style.background = "#dc2626";
+    btnAdd.style.color = "white";
+    btnAdd.style.border = "none";
+    btnAdd.style.padding = "6px 10px";
+    btnAdd.style.borderRadius = "5px";
+    btnAdd.style.cursor = "pointer";
+
+    btnAdd.onclick = async () => {
+    const type = typeSelect.value;
+    const raison = reasonInput.value.trim();
+    if (!raison) return alert("Veuillez indiquer une raison");
+
+    const newSanction = { 
+        type, 
+        raison,
+        date: new Date().toLocaleDateString("fr-FR")
+    };
+
+    sanctions.push(newSanction);
+
+    await updateDoc(doc(db, "agents", data.id), { sanctions });
+
+    // ✅ Mettre à jour seulement la liste
+    document.getElementById("sanctionsItems").innerHTML = renderSanctions();
+
+    reasonInput.value = "";
+    typeSelect.selectedIndex = 0;
+    alert("Sanction ajoutée !");
+};
+
+
+    sanctionDiv.appendChild(typeSelect);
+    sanctionDiv.appendChild(reasonInput);
+    sanctionDiv.appendChild(btnAdd);
+    if (!isTrainerRole) {
+    document.getElementById("sanctionsList").appendChild(sanctionDiv);
+}
+    document.getElementById("addNoteBtn").onclick = addNote;
+
+    function renderGradeHistory() {
+        const history = data.gradeHistory || [];
+        if (!history.length) return "<p>Aucun changement de grade</p>";
+
+        return `
+        <div style="display:flex; flex-direction:column; gap:6px; margin-top:10px;">
+            ${history.map(h => `
+            <div style="background:#111827; padding:6px 10px; border-radius:6px; display:flex; justify-content:space-between;">
+                <span>
+                    ${h.oldGrade} → ${h.newGrade} 
+                    <small style="color:#9ca3af;">(${h.date})</small>
+                </span>
+            </div>
+            `).join("")}
+        </div>
+        `;
+    }
+
+}
+
+
+</script>
+</body>
+</html>
