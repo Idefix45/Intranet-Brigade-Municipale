@@ -1188,6 +1188,190 @@ h1::after {
     display: none;
 }
 
+
+
+
+
+
+#pagecro {
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+    width: 90%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-top: 20px;
+
+    max-height: 100vh;
+    overflow-y: auto;
+}
+
+
+
+body {
+    overflow-y: scroll; /* garde le scroll actif */
+    scrollbar-width: none; /* Firefox */
+}
+
+body::-webkit-scrollbar {
+    display: none; /* Chrome / Edge / Safari */
+}
+
+#pagecro {
+    overflow-y: auto;
+    max-height: 100vh;
+
+    scrollbar-width: none; /* Firefox */
+}
+
+#pagecro::-webkit-scrollbar {
+    display: none; /* Chrome / Edge */
+}
+
+input[type="time"] {
+    height: 28px;
+    font-size: 12px;
+    padding: 4px 6px;
+}
+
+
+.cro-select {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: white;
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    
+
+    /* petite flèche custom */
+    background-image: linear-gradient(45deg, transparent 50%, #9ca3af 50%),
+                      linear-gradient(135deg, #9ca3af 50%, transparent 50%);
+    background-position: calc(100% - 15px) calc(50% - 2px),
+                         calc(100% - 10px) calc(50% - 2px);
+    background-size: 5px 5px;
+    background-repeat: no-repeat;
+}
+
+.cro-select:hover {
+    border-color: #60a5fa;
+}
+
+.cro-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+}
+
+
+
+#pagecro input {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: white;
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    outline: none;
+    box-sizing: border-box;
+    transition: 0.2s ease;
+}
+
+#pagecro input:hover {
+    border-color: #60a5fa;
+}
+
+#pagecro input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+}
+
+
+
+.event-card {
+    background: #1f2937;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #374151;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: 0.25s ease;
+}
+
+.eventType {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    background: #111827;
+    color: white;
+    border: 1px solid #374151;
+}
+
+.eventDesc {
+    width: 100%;
+    min-height: 80px;
+    height: 90px;
+    resize: none;
+    padding: 8px;
+    border-radius: 6px;
+    background: #111827;
+    color: white;
+    border: 1px solid #374151;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+
+.event-extra {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.event-extra input,
+.event-extra textarea {
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 6px;
+    background: #111827;
+    color: white;
+    border: 1px solid #374151;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+.event-extra textarea {
+    min-height: 70px;
+    resize: none;
+}
+
+.event-header {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.validateEvent {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.event-card.compact .event-body {
+    display: none;
+}
 </style>
 </head>
 <body>
@@ -1584,10 +1768,10 @@ h1::after {
 
     <div class="brigade-cards">
 
-        <div class="brigade-card" id="btnTenues">
+        <div class="brigade-card" id="btncro">
             <div class="brigade-icon">👔</div>
-            <h3>Tenues</h3>
-            <p>Voir les tenues réglementaires</p>
+            <h3>Compte rendu opérationnel</h3>
+            <p>Effectuer un compte rendu opérationnel</p>
         </div>
 
         <div class="brigade-card" id="btnProcedures">
@@ -1917,6 +2101,64 @@ h1::after {
 
 
 
+
+
+
+<!-- PAGE CRO -->
+<div class="container" id="pagecro">
+
+    <h2>Compte rendu opérationnel</h2>
+
+    <input type="date" id="croDate">
+
+    <div style="display:flex; align-items:center; gap:10px;">
+    <span>Début de patrouille :</span>
+    <input type="time" id="croStartPatrouille">
+</div>
+
+<div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
+    <span>Fin de patrouille :</span>
+    <input type="time" id="croEndPatrouille">
+</div>
+
+    <input type="text" id="croVehicule" placeholder="Indicatif véhicule (PAM-01)">
+    <input type="text" id="croSecteur" value="Paris 75" readonly>
+    <input type="text" id="croComposition" placeholder="Ex: 2 + 1">
+
+    <select id="croMission" class="cro-select">
+    <option>Patrouille de surveillance générale</option>
+    <option>Contrôle routier</option>
+    <option>Sécurisation</option>
+    <option>Intervention</option>
+</select>
+
+    <h3>Événements</h3>
+
+    <div id="eventsContainer"></div>
+
+    <button id="addEventBtn">
+        ➕ Ajouter un événement
+    </button>
+
+    <button id="generateCroBtn">
+        📄 Générer le CRO
+    </button>
+
+    <textarea id="croResult" style="
+    width: 100%;
+    min-height: 400px;
+    height: 60vh;
+    background: #1f2937;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    resize: vertical;
+    box-sizing: border-box;
+"></textarea>
+
+    <button id="btnBackFromCRO">⬅️ Retour</button>
+</div>
 
 
 
@@ -2346,7 +2588,7 @@ const pageTotalHours = document.getElementById("pageTotalHours");
 const totalHoursList = document.getElementById("totalHoursList");
 const btnBackAdminHome = document.getElementById("btnBackAdminHome");
 const pageBrigade = document.getElementById("pageBrigade");
-const btnTenues = document.getElementById("btnTenues");
+const btncro = document.getElementById("btncro");
 const btnProcedures = document.getElementById("btnProcedures");
 const btnReglementBrigade = document.getElementById("btnReglementBrigade");
 const btnBackHomeFromBrigade = document.getElementById("btnBackHomeFromBrigade");
@@ -2366,6 +2608,12 @@ const btnBackAgentDetail = document.getElementById("btnBackAgentDetail");
 const btnManageAccounts = document.getElementById("btnManageAccounts");
 const btnTotalHours = document.getElementById("btnTotalHours");
 const btnAllAgents = document.getElementById("btnAllAgents");
+const pagecro = document.getElementById("pagecro");
+const btnBackFromCRO = document.getElementById("btnBackFromCRO");
+
+btnBackFromCRO.onclick = () => {
+    showPage(pageBrigade);
+};
 
 
 const gradeOrder = [
@@ -2440,9 +2688,8 @@ btnBrigadeHome.onclick = () => {
 };
 
 // Carte "Tenues" à l'intérieur de la page Brigade Municipale
-btnTenues.onclick = () => {
-    alert("En cours de dévloppement !")
-    // ou showPage(pageTenues) si tu crées une vraie page
+btncro.onclick = () => {
+    showPage(pagecro);
 };
 
 // Carte "Procédures" à l'intérieur de la page Brigade Municipale
@@ -2623,6 +2870,12 @@ function showPage(page) {
     pageBrigade.style.display = "none";
     pageProcedures.style.display = "none";
     mailPage.style.display = "none";
+    pagecro.style.display = "none"; // ← AJOUTE ÇA
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 
     // 🔹 affiche la page demandée
     page.style.display = "flex";
@@ -7150,6 +7403,206 @@ function listenForNewMailsSound(agentId) {
         });
     });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+const input = document.getElementById("croComposition");
+
+input.addEventListener("input", function () {
+    let value = input.value.replace(/[^0-9]/g, ""); // garde que les chiffres
+
+    let a = value[0] || "";
+    let b = value[1] || "";
+
+    if (a > 4) a = 4;
+    if (b > 4) b = 4;
+
+    if (value.length <= 1) {
+        input.value = a;
+    } else {
+        input.value = `${a} + ${b}`;
+    }
+});
+
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const dateInput = document.getElementById("croDate");
+
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.value = today;
+});
+
+const eventsContainer = document.getElementById("eventsContainer");
+
+const generateCroBtn = document.getElementById("generateCroBtn");
+
+
+
+
+document.getElementById("addEventBtn").onclick = (e) => {
+    e.preventDefault();
+
+    const div = document.createElement("div");
+    div.className = "event-card";
+
+    div.innerHTML = `
+        <div class="event-header">
+
+            <input type="time" class="eventHour">
+
+            <select class="eventType">
+                <option value="">Type événement</option>
+                <option>Contrôle routier</option>
+                <option>Accident</option>
+                <option>Refus d'obtempérer</option>
+                <option>Interpellation</option>
+                <option>Patrouille</option>
+                <option>Autre</option>
+            </select>
+
+            <button class="validateEvent">✔</button>
+
+        </div>
+
+        <div class="event-body">
+            <div class="event-extra"></div>
+            <textarea class="eventDesc" placeholder="Description des faits..."></textarea>
+        </div>
+    `;
+
+    const select = div.querySelector(".eventType");
+    const extra = div.querySelector(".event-extra");
+    const validate = div.querySelector(".validateEvent");
+
+    // 🔥 champs dynamiques
+    select.addEventListener("change", function () {
+
+        extra.innerHTML = "";
+
+        if (this.value === "Refus d'obtempérer") {
+            extra.innerHTML = `
+                <input type="text" placeholder="Type de véhicule">
+                <input type="number" placeholder="Nombre d'occupants" min="1" max="10">
+                <input type="text" placeholder="Plaque">
+                <input type="text" placeholder="Couleur">
+            `;
+        }
+
+        if (this.value === "Contrôle routier") {
+            extra.innerHTML = `
+                <input type="text" placeholder="Type de véhicule">
+                <input type="text" placeholder="Plaque">
+                <input type="text" placeholder="Infraction constatée">
+            `;
+        }
+
+        if (this.value === "Accident") {
+            extra.innerHTML = `
+                <input type="text" placeholder="Type d'accident">
+                <input type="text" placeholder="Véhicules impliqués">
+                <input type="text" placeholder="Blessés (oui/non)">
+            `;
+        }
+    });
+
+    // 🔥 mode compact / validation
+    validate.addEventListener("click", () => {
+
+    div.classList.toggle("compact");
+
+    // change le bouton visuellement
+    if (div.classList.contains("compact")) {
+        validate.textContent = "✏️";
+    } else {
+        validate.textContent = "✔";
+    }
+
+});
+
+    eventsContainer.appendChild(div);
+
+    // 🔥 IMPORTANT : déclenche une fois au cas où
+    select.dispatchEvent(new Event("change"));
+};
+
+
+
+
+generateCroBtn.onclick = () => {
+
+    console.log("GENERATION CRO OK");
+
+    const date = document.getElementById("croDate").value || "";
+    const start = document.getElementById("croStartPatrouille").value || "";
+    const end = document.getElementById("croEndPatrouille").value || "";
+    const vehicule = document.getElementById("croVehicule").value || "";
+    const secteur = document.getElementById("croSecteur").value || "";
+    const composition = document.getElementById("croComposition").value || "";
+    const mission = document.getElementById("croMission").value || "";
+
+    const events = document.querySelectorAll("#eventsContainer .event-card");
+
+    let texte = `📄 COMPTE RENDU OPÉRATIONNEL
+
+À l’issue de la vacation de patrouille (VAC) effectuée le ${date}, de ${start} à ${end},
+la ${vehicule} rend compte du déroulement de la mission dans le secteur de ${secteur} et ses alentours.
+
+────────────────────────
+📌 IDENTIFICATION
+Heure de prise d’écoute : ${start}
+Heure de fin d’écoute : ${end}
+Composition : ${composition}
+Mission : ${mission}
+
+────────────────────────
+📍 ÉVÉNEMENTS
+`;
+
+    events.forEach(event => {
+
+        const type = event.querySelector(".eventType")?.value || "Non défini";
+        const desc = event.querySelector(".eventDesc")?.value || "Aucune description";
+
+        let extraText = "";
+
+        event.querySelectorAll(".event-extra input").forEach(input => {
+            if (input.value) {
+                extraText += `\n- ${input.placeholder} : ${input.value}`;
+            }
+        });
+
+        texte += `
+────────────────────────
+🕒 ${type}
+${extraText}
+📌 ${desc}
+`;
+    });
+
+    texte += `
+Compte rendu conforme aux procédures en vigueur. Aucun autre fait notable à signaler.
+`;
+
+    document.getElementById("croResult").value = texte;
+
+    console.log("CRO généré :", texte);
+};
+
+
+
 
 
 </script>
